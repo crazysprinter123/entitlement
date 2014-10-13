@@ -1,12 +1,12 @@
 from beaker.beakerbase import BeakerBase
 from utils.tools.shell.beakercmd import BeakerCMD
-from utils.constants import VIRTWHO_RUN_CONF, RHEL5_PACKAGES, PACKAGES, KVM_JOB
+from utils.constants import VIRTWHO_ESX_CONF, RHEL5_PACKAGES, PACKAGES, ESX_JOB
 
-class BKvirtwho(BeakerBase):
+class BKvirtwhoESX(BeakerBase):
     '''
     classdocs
     '''
-    conf_file_name = VIRTWHO_RUN_CONF
+    conf_file_name = VIRTWHO_ESX_CONF
 
     def start(self, distro=None, sam_build=None, sam_server=None):
         if distro == None:
@@ -19,70 +19,26 @@ class BKvirtwho(BeakerBase):
 
         beaker_command = BeakerCMD()
 
-        # KVM/XEN hypervisor
-        if beaker_command.get_rhel_version(distro) == 5:
-#                 packages = RHEL5_PACKAGES
-#                 if self.confs._confs["hypervisor"] == "xen":
-#                     packages.append("@xen")
-#                 else:
-#                     packages.append("@kvm")
-#                 beaker_command.set_beaker_distro_variant(job_xml, "")
-            packages = RHEL5_PACKAGES
-            import copy
-            packages_kvm = copy.copy(packages)
-            packages_kvm.append("@kvm")
-            packages_xen = copy.copy(packages)
-            packages_xen.append("@xen")
-            # kvm run
-            job_xml = beaker_command.create_runtime_job(KVM_JOB)
-            beaker_command.set_beaker_distro_name(job_xml, distro)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "HANDLEGUEST", self.confs._confs["handleguest"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTNAME", sam_server)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTIP", sam_ip)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "CONFILE", self.confs._confs["confile"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "COPYIMAGES", self.confs._confs["copyimages"])
-            beaker_command.set_packages(job_xml, packages_kvm)
-            beaker_command.set_beaker_job_name(job_xml, "Host/guest association test on %s(KVM) against %s" % (distro, sam_build))
-            beaker_command.set_beaker_distro_variant(job_xml, "")
-            beaker_command.job_submit(job_xml)
-            # xen fv run
-            job_xml = beaker_command.create_runtime_job(KVM_JOB)
-            beaker_command.set_beaker_distro_name(job_xml, distro)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "HANDLEGUEST", self.confs._confs["handleguest_fv"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTNAME", sam_server)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTIP", sam_ip)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "CONFILE", self.confs._confs["confile_xen"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "COPYIMAGES", self.confs._confs["copyimages"])
-            beaker_command.set_packages(job_xml, packages_xen)
-            beaker_command.set_beaker_job_name(job_xml, "Host/guest association test on %s(XEN/FV) against %s" % (distro, sam_build))
-            beaker_command.set_beaker_distro_variant(job_xml, "")
-            beaker_command.job_submit(job_xml)
-            # xen pv run
-            job_xml = beaker_command.create_runtime_job(KVM_JOB)
-            beaker_command.set_beaker_distro_name(job_xml, distro)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "HANDLEGUEST", self.confs._confs["handleguest_pv"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTNAME", sam_server)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTIP", sam_ip)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "CONFILE", self.confs._confs["confile_xen"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "COPYIMAGES", self.confs._confs["copyimages"])
-            beaker_command.set_packages(job_xml, packages_xen)
-            beaker_command.set_beaker_job_name(job_xml, "Host/guest association test on %s(XEN/PV) against %s" % (distro, sam_build))
-            beaker_command.set_beaker_distro_variant(job_xml, "")
-            beaker_command.job_submit(job_xml)
-        else:
-            packages = PACKAGES
-            job_xml = beaker_command.create_runtime_job(KVM_JOB)
-            beaker_command.set_beaker_distro_name(job_xml, distro)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "HANDLEGUEST", self.confs._confs["handleguest"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTNAME", sam_server)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTIP", sam_ip)
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "CONFILE", self.confs._confs["confile"])
-            beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "COPYIMAGES", self.confs._confs["copyimages"])
-            beaker_command.set_packages(job_xml, packages)
-            beaker_command.set_beaker_job_name(job_xml, "Host/guest association test on %s(KVM) against %s" % (distro, sam_build))
-            beaker_command.job_submit(job_xml)
+        job_xml = beaker_command.create_runtime_job(ESX_JOB)
+        beaker_command.set_beaker_distro_name(job_xml, distro)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "HANDLEGUEST", self.confs._confs["handleguest"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTNAME", sam_server)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTIP", sam_ip)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "CONFILE", self.confs._confs["confile"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "COPYIMAGES", self.confs._confs["copyimages"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "VCENTERMACHINE_IP", self.confs._confs["vcentermachine_ip"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "VCENTERMACHINE_USERNAME", self.confs._confs["vcentermachine_username"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "VCENTERMACHINE_PASSWORD", self.confs._confs["vcentermachine_password"])
+        beaker_command.set_beaker_job_name(job_xml, "Host/guest association test on ESX against %s" % (sam_build))
 
-        # ESX hypervisor
+        if beaker_command.get_rhel_version(distro) == 5:
+            RHEL5_PACKAGES.append("@kvm")
+            beaker_command.set_packages(job_xml, RHEL5_PACKAGES)
+            beaker_command.set_beaker_distro_variant(job_xml, "")
+        else:
+            beaker_command.set_packages(job_xml, PACKAGES)
+
+        beaker_command.job_submit(job_xml)
 
 if __name__ == "__main__":
-    BKvirtwho().start()
+    BKvirtwhoESX().start()

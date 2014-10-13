@@ -13,12 +13,14 @@ RHSM_GUI_CONF = "rhsm_gui.conf"
 #virt-who configure
 VIRTWHO_RUN_CONF = "virtwho_run.conf"
 VIRTWHO_KVM_CONF = "virtwho_kvm.conf"
+VIRTWHO_ESX_CONF = "virtwho_esx.conf"
 VIRTWHO_XEN_FV_CONF = "virtwho_xen_fv.conf"
 VIRTWHO_ESX_PV_CONF = "virtwho_esx_pv.conf"
 
 # beaker job
 SAM_JOB = "sam_latest_install_job_sample.xml"
 KVM_JOB = "virtwho_kvm_xen_job_sample.xml"
+ESX_JOB = "virtwho_esx_job_sample.xml"
 RHSM_GUI_JOB = "rhsm_gui_job_sample.xml"
 
 # log module
