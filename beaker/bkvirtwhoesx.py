@@ -21,14 +21,14 @@ class BKvirtwhoESX(BeakerBase):
 
         job_xml = beaker_command.create_runtime_job(ESX_JOB)
         beaker_command.set_beaker_distro_name(job_xml, distro)
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "HANDLEGUEST", self.confs._confs["handleguest"])
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTNAME", sam_server)
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "SAMHOSTIP", sam_ip)
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "CONFILE", self.confs._confs["confile"])
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "COPYIMAGES", self.confs._confs["copyimages"])
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "VCENTERMACHINE_IP", self.confs._confs["vcentermachine_ip"])
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "VCENTERMACHINE_USERNAME", self.confs._confs["vcentermachine_username"])
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who", "VCENTERMACHINE_PASSWORD", self.confs._confs["vcentermachine_password"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "HANDLEGUEST", self.confs._confs["handleguest"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "SAMHOSTNAME", sam_server)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "SAMHOSTIP", sam_ip)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "CONFILE", self.confs._confs["confile"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "COPYIMAGES", self.confs._confs["copyimages"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "VCENTERMACHINE_IP", self.confs._confs["vcentermachine_ip"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "VCENTERMACHINE_USERNAME", self.confs._confs["vcentermachine_username"])
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/virt-who-esx", "VCENTERMACHINE_PASSWORD", self.confs._confs["vcentermachine_password"])
         beaker_command.set_beaker_job_name(job_xml, "Host/guest association test on ESX against %s" % (sam_build))
 
         if beaker_command.get_rhel_version(distro) == 5:
