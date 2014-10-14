@@ -2,7 +2,7 @@
 # vim: dict+=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /distribution/etitlement-qa/Regression/virt-who-esx
+#   runtest.sh of /distribution/entitlement-qa/Regression/virt-who-esx
 #   Description: Run virt-who esx testing
 #   Author: gao shang <sgao@redhat.com>
 #
@@ -29,9 +29,8 @@
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
-PACKAGE="etitlement-qa"
-
 PACKAGE="entitlement-qa"
+
 
 # decide if we're running standalone or in a Beaker instance
 if test -z $JOBID ; then

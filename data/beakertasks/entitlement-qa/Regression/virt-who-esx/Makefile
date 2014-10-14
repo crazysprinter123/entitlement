@@ -1,6 +1,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Makefile of /distribution/etitlement-qa/Regression/virt-who-esx
+#   Makefile of /distribution/entitlement-qa/Regression/virt-who-esx
 #   Description: Run virt-who esx testing
 #   Author: gao shang <sgao@redhat.com>
 #
@@ -23,7 +23,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/distribution/etitlement-qa/Regression/virt-who-esx
+export TEST=/distribution/entitlement-qa/Regression/virt-who-esx
 export TESTVERSION=1.1
 
 BUILT_FILES=
@@ -52,8 +52,8 @@ $(METADATA): Makefile
 	@echo "Description:     Run virt-who esx testing" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
 	@echo "TestTime:        2h" >> $(METADATA)
-	@echo "RunFor:          etitlement-qa" >> $(METADATA)
-	@echo "Requires:        etitlement-qa" >> $(METADATA)
+	@echo "RunFor:          entitlement-qa" >> $(METADATA)
+	@echo "Requires:        entitlement-qa" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
