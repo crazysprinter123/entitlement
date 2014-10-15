@@ -65,6 +65,8 @@ EOF
 
     rlPhaseStartTest
         rlRun "echo start testing .............."
+        rlRun "export PYTHONPATH=$PYTHONPATH:$/root/entitlement"
+        rlRun "python testcases/test_rhsm_gui.py"
     rlPhaseEnd
 
     rlPhaseStartCleanup

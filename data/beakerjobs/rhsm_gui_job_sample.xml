@@ -46,6 +46,8 @@
 				<package name="at-spi-python"/>
 				<package name="tigervnc-server"/>
 				<package name="sendmail"/>
+				<package name="pexpect"/>
+				<package name="tigervnc"/>
 			</packages>
 			<ks_appends/>
 			<repos/>

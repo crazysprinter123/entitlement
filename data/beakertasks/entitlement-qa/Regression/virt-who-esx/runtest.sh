@@ -76,7 +76,6 @@ EOF"
         rlRun "if [ ! -d /root/libvirt-test-API ]; then /root/get-libvirt-repo.sh; fi" 0 "Git clone libvirt-test-API"
         rlRun "sleep 60"
         rlRun "cd /root/libvirt-test-API"
-        rlRun "echo \"Servers: $SERVERS\""
         cases_params_list=$(python libvirt-test-beaker-api.py --handleguest=$HANDLEGUEST --samhostname=$SAMHOSTNAME --confile=$CONFILE --copyimages=$COPYIMAGES --samhostip=$SAMHOSTIP --vcentermachine_ip=$VCENTERMACHINE_IP --vcentermachine_username=$VCENTERMACHINE_USERNAME --vcentermachine_password=$VCENTERMACHINE_PASSWORD --beaker=yes 2>&1 >/dev/null)
         for i in $cases_params_list; do
             python libvirt-test-beaker-api.py $i
