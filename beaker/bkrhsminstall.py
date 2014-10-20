@@ -1,5 +1,7 @@
+import os, re
 from utils import logger
 from beaker.beakerbase import BeakerBase
+from utils.tools.shell.command import Command
 from utils.tools.shell.beakercmd import BeakerCMD
 from utils.constants import RHSM_GUI_CONF, RHSM_GUI_JOB
 
@@ -33,7 +35,14 @@ class BKRHSMInstall(BeakerBase):
 
         job = beaker_command.job_submit(job_xml)
         rhsm_server = beaker_command.check_job_finished(job)
-        return rhsm_server
+        # begin running gui automation ...
+        cmd = "vncviewer %s:1" % rhsm_server
+        Command.run(cmd)
+        bk_commander = Command(rhsm_server, "root", "xxoo2014")
+        cmd = "cd /root/entitlement; export PYTHONPATH=$PYTHONPATH:$/root/entitlement; python testcases/test_rhsm_gui.py"
+        bk_commander.run(cmd)
+#         os.environ["LDTP_SERVER_ADDR"] = rhsm_server
+#         from testcases import test_rhsm_gui
 
 if __name__ == "__main__":
     BKRHSMInstall().start()
