@@ -31,6 +31,10 @@
 
 PACKAGE="entitlement-qa"
 
+#disable avc check
+setenforce 0
+export AVC_ERROR=+no_avc_check
+
 rlJournalStart
     rlPhaseStartSetup
         #configure for ldtp gui test
@@ -60,12 +64,15 @@ X-GNOME-Autostart-enabled=true
 Name=ldtpd
 Comment=
 EOF
-        rlRun "configure vncserver .............."
-        rlRun "vncserver -SecurityTypes None"
+        vncserver -SecurityTypes None
+        chkconfig vncserver on; init 3; sleep 10; init 5
     rlPhaseEnd
 
     rlPhaseStartTest
         rlRun "echo start testing .............."
+        rlRun "cd /root/entitlement"
+        rlRun "export PYTHONPATH=$PYTHONPATH:$/root/entitlement"
+        rlRun "python testcases/test_rhsm_gui.py"
     rlPhaseEnd
 
     rlPhaseStartCleanup
