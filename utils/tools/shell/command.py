@@ -21,8 +21,24 @@ class Command(object):
     def remote_put(self, from_path, to_path):
         RemoteSH.remote_put(self.remote_ip, self.username, self.password, from_path, to_path)
 
-    def fork_run(self, cmd, timeout=None):
-        pass
+    def fork_run(self, cmd):
+        import os, sys
+        r, w = os.pipe()
+        pid = os.fork()
+        if pid == 0:
+            # subprocess
+            os.close(r)
+            w = os.fdopen(w, 'w')
+            print "child: writing"
+            w.write("subprocess running")
+            w.close()
+        else:
+            # parent process
+            os.close(w)
+            r = os.fdopen(r)
+            print "parent: reading"
+            txt = r.read()
+            print txt
 
     def interact_run(self, cmd):
         ret, output = LocalSH.run_pexpect(cmd)

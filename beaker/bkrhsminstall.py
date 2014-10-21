@@ -32,17 +32,16 @@ class BKRHSMInstall(BeakerBase):
 #             beaker_command.set_beaker_distro_variant(job_xml, "")
 #         else:
 #             beaker_command.set_packages(job_xml, PACKAGES)
-
+ 
         job = beaker_command.job_submit(job_xml)
         rhsm_server = beaker_command.check_job_finished(job)
         # begin running gui automation ...
-        cmd = "vncviewer %s:1" % rhsm_server
-        Command.run(cmd)
-        bk_commander = Command(rhsm_server, "root", "xxoo2014")
+#         cmd = "setsid vncviewer %s:1" % rhsm_server
+#         local_commander = Command()
+#         local_commander.run(cmd)
+        remote_commander = Command(rhsm_server, "root", "xxoo2014")
         cmd = "cd /root/entitlement; export PYTHONPATH=$PYTHONPATH:$/root/entitlement; python testcases/test_rhsm_gui.py"
-        bk_commander.run(cmd)
-#         os.environ["LDTP_SERVER_ADDR"] = rhsm_server
-#         from testcases import test_rhsm_gui
+        remote_commander.run(cmd)
 
 if __name__ == "__main__":
     BKRHSMInstall().start()
