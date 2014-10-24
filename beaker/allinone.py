@@ -1,5 +1,5 @@
+from beaker.bkrhsmgui import BKRHSMGUI
 from beaker.bksaminstall import BKSAMInstall
-from beaker.bkrhsminstall import BKRHSMInstall
 from utils.installation.vwkscreate import VWKSCreate
 from beaker.bkvirtwhokvm import BKvirtwhoKVM
 from beaker.bkvirtwhoesx import BKvirtwhoESX
@@ -19,7 +19,7 @@ class AllInOne():
             BKvirtwhoESX().start(build, sam_build, sam_server)
             BKvirtwhoXENFV().start(build, sam_build, sam_server)
             BKvirtwhoXENPV().start(build, sam_build, sam_server)
-            BKRHSMInstall().start(build, sam_build, sam_server)
+            BKRHSMGUI().start(build, sam_build, sam_server)
 
 if __name__ == "__main__":
     AllInOne().start()
