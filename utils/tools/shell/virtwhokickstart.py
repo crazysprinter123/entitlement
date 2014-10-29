@@ -99,10 +99,14 @@ class VirtWhoKickstart(Command):
             compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/tree-x86_64/" % compose
         elif rhel_version == 6:
 #           compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/%s/Server/x86_64/os/" % (compose, self.get_rhel_version(compose))
-	    compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/compose/Server/x86_64/os/" % compose
-	elif rhel_version == 7:
+            compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/compose/Server/x86_64/os/" % compose
+        elif rhel_version == 7:
             compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/compose/Server/x86_64/os/" % compose
         if not self.__check_file_exist(distro_file):
+            if rhel_version == 7:
+                modified_rhel_version = 6
+            else:
+                modified_rhel_version = rhel_version
             cmd = ('cat <<EOF > %s\n'
                 '[General]\n'
                 'arch : x86_64\n'
@@ -120,7 +124,7 @@ class VirtWhoKickstart(Command):
                 'redhat_management_key :\n'
                 'redhat_management_server :\n'
                 'template_files :\n'
-                'EOF' % (distro_file, compose_url, compose_url, rhel_version)
+                'EOF' % (distro_file, compose_url, compose_url, modified_rhel_version)
                 )
             logger.info("Created distro file: %s" % distro_file)
             self.run(cmd)
