@@ -74,11 +74,11 @@ EOF
         rlRun "export PYTHONPATH=$PYTHONPATH:$/root/entitlement"
         cases_list=$(ls testcases/rhsmgui | grep "^tc_ID.*py$")
         for i in $cases_list; do
-            python testcases/rhsmgui/$i
+            python testcases/rhsmgui/$i $i
             if [ $? -eq 0 ]; then
-                rhts-report-result $i PASS result/default/$i
+                rhts-report-result $i PASS runtime/result/default/runtime.log
             else
-                rhts-report-result $i FAIL result/default/$i
+                rhts-report-result $i FAIL runtime/result/default/runtime.log
             fi
         done
     rlPhaseEnd

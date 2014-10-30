@@ -77,6 +77,7 @@ RHEL5_PACKAGES = [
                 "gnutls-utils",
                 "gcc",
                 "make",
+                "tigervnc-server",
 ]
 
 PACKAGES = [
@@ -107,6 +108,7 @@ PACKAGES = [
             "git",
             "make",
             "gcc",
+            "tigervnc-server",
 ]
 
 def get_build_tree(product_name):

@@ -37,14 +37,18 @@ export AVC_ERROR=+no_avc_check
 
 rlJournalStart
     rlPhaseStartSetup
-        rlRun "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-eth0"
-        rlRun "echo "BRIDGE=switch" >> /etc/sysconfig/network-scripts/ifcfg-eth0"
+        bk_ip=$(hostname -I | awk {'print $1'})
+        network_dev=$(ip route | grep $bk_ip | awk {'print $3'})
+        rlRun "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-$network_dev"
+        rlRun "echo "BRIDGE=switch" >> /etc/sysconfig/network-scripts/ifcfg-$network_dev"
         rlRun "cat > /etc/sysconfig/network-scripts/ifcfg-br0 <<EOF
 DEVICE=switch
 BOOTPROTO=dhcp
 ONBOOT=yes
 TYPE=Bridge
 EOF"
+        rlRun "service network restart"
+        rlRun "vncserver -SecurityTypes None"
         rlRun "service network restart"
         if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
             rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm

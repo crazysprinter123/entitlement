@@ -5,9 +5,7 @@ import logging
 import unittest
 from utils.constants import *
 
-# __all__ = [os, sys]
-
-def get_log_path():
+def get_log_file():
     """
     Returns correct path to log file
     """
@@ -18,7 +16,7 @@ logger = logging.getLogger("%s" % LOGGER_NAME)
 logger.setLevel(logging.DEBUG)
 
 # create file handler
-fh = logging.FileHandler("%s" % get_log_path())
+fh = logging.FileHandler("%s" % get_log_file())
 fh.setLevel(logging.DEBUG)
 
 # create console handler
@@ -32,3 +30,19 @@ ch.setFormatter(formatter)
 
 logger.addHandler(fh)
 logger.addHandler(ch)
+
+def get_runtime_log_file(file_name):
+    """
+    Returns correct path to log file
+    """
+    path_name = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "runtime/result/default/"))
+    if not os.path.exists(path_name):
+        os.makedirs(path_name)
+    os.remove(os.path.join(path_name, file_name))
+    return os.path.join(path_name, file_name)
+
+# create runtime file handler
+runtiem_fh = logging.FileHandler("%s" % get_runtime_log_file("runtime.log"))
+runtiem_fh.setLevel(logging.DEBUG)
+runtiem_fh.setFormatter(formatter)
+logger.addHandler(runtiem_fh)
