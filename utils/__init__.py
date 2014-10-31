@@ -38,11 +38,13 @@ def get_runtime_log_file(file_name):
     path_name = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "runtime/result/default/"))
     if not os.path.exists(path_name):
         os.makedirs(path_name)
-    os.remove(os.path.join(path_name, file_name))
+    runtime_file = os.path.join(path_name, file_name)
+    if os.path.exists(runtime_file):
+        os.remove(runtime_file)
     return os.path.join(path_name, file_name)
 
 # create runtime file handler
-runtiem_fh = logging.FileHandler("%s" % get_runtime_log_file("runtime.log"))
-runtiem_fh.setLevel(logging.DEBUG)
-runtiem_fh.setFormatter(formatter)
-logger.addHandler(runtiem_fh)
+runtime_fh = logging.FileHandler("%s" % get_runtime_log_file("runtime.log"))
+runtime_fh.setLevel(logging.DEBUG)
+runtime_fh.setFormatter(formatter)
+logger.addHandler(runtime_fh)
