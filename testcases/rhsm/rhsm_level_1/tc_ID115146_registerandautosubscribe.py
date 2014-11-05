@@ -1,40 +1,38 @@
-import sys, os, subprocess, commands
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID115146_registerandautosubscribe(test, params, env):
+class tc_ID115146_registerandautosubscribe(RHSMBase):
 
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            try:
+                username = RHSMConstants().get_constant("username")
+                password = RHSMConstants().get_constant("password")
+                # productid = RHSMConstants.get_constant("productid")
+                autosubprod = RHSMConstants().get_constant("autosubprod")
+                cmd = "subscription-manager register --username=%s --password=%s --autosubscribe" % (username, password)
+                (ret, output) = self.runcmd(cmd, "register and auto-subscribe")
+                if ret == 0:
+                    if (("The system has been registered with ID" in output) or ("The system has been registered with id" in output)) and (autosubprod in output) and ("Subscribed" in output) and ("Not Subscribed" not in output):
+                        if self.sub_checkidcert():
+                            logger.info("It's successful to register.")
+                        else:
+                            raise FailException("Test Failed - Failed to register.")
+                    else:
+                        raise FailException("Test Failed - Failed to register and auto-subscribe correct product.")
+                else:
+                    raise FailException("Test Failed - Failed to register and auto-subscribe.")
+                self.assert_(True, case_name)
+            except Exception, e:
+                logger.error("Test Failed - ERROR Message:" + str(e))
+                self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-	try:
-		username=ee().get_env(params)["username"]
-		password=ee().get_env(params)["password"]
-		cmd="subscription-manager register --username=%s --password=%s --autosubscribe"%(username,password)
-		(ret,output)=eu().runcmd(session,cmd,"register and auto-subscribe")
-
-		productid=ee().get_env(params)["productid"]
-		autosubprod=ee().get_env(params)["autosubprod"]
-		if ret == 0:
-			if ("The system has been registered with ID" in output) or ("The system has been registered with id" in output)\
-                           and (autosubprod in output) and ("Subscribed" in output) and ("Not Subscribed" not in output):
-                                #eu().sub_checkentitlementcerts(session,productid)                                
-				if eu().sub_checkidcert(session): logging.info("It's successful to register.")
-				else: raise error.TestFail("Test Failed - Failed to register.")
-			else:
-				raise error.TestFail("Test Failed - Failed to register and auto-subscribe correct product.")
-		else:
-			raise error.TestFail("Test Failed - Failed to register and auto-subscribe.")
-
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when do register and auto-subscribe:"+str(e))
-	finally:
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
-
-
+if __name__ == "__main__":
+    unittest.main()

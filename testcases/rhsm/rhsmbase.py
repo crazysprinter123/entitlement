@@ -80,6 +80,16 @@ class RHSMBase(unittest.TestCase):
             logger.info("The system is not registered to server now.")
             return False
 
+    def sub_checkidcert(self):
+        cmd = "ls /etc/pki/consumer/"
+        (ret, output) = self.runcmd(cmd, "listing the files in /etc/pki/consumer/")
+        if ret == 0 and "cert.pem" in output and "key.pem" in output:
+            logger.info("There are identity certs in the consumer directory.")
+            return True
+        else:
+            logger.info("There is no identity certs in the consumer directory.")
+            return False
+
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
 #                     vm.copy_files_to(sourcepath, targetpath)
