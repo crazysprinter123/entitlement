@@ -1,6 +1,6 @@
 from utils import *
 from utils.configs import Configs
-from utils.constants import RHSM_GUI_CONF
+from utils.constants import RHSM_CONF
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 
@@ -48,7 +48,7 @@ class RHSMConstants(object):
     def __init__(self):
         if(self.__initialized): return
         self.__initialized = True
-        self.confs = Configs(RHSM_GUI_CONF)
+        self.confs = Configs(RHSM_CONF)
         self.server = self.confs._confs["server"]
         if self.server == "sam":
             self.configure_sam_host(self.confs._confs["samhostname"], self.confs._confs["samhostip"])

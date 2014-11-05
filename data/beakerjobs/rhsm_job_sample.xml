@@ -53,7 +53,7 @@
 			<repos/>
 			<distroRequires>
 				<and>
-					<distro_name op="=" value="RHEL-6.6-20140812.1"/>
+					<distro_name op="=" value="RHEL-7.1-20141029.0"/>
 					<distro_variant op="=" value="Server"/>
 					<distro_arch op="=" value="x86_64"/>
 				</and>
@@ -67,6 +67,9 @@
 			<partitions/>
 			<task name="/distribution/install" role="STANDALONE"/>
 			<task name="/distribution/entitlement-qa/Regression/rhsm" role="STANDALONE"/>
+				<params>
+					<param name="RUN_LEVEL" value="rhsm_level_1"/>
+				</params>
 			<task name="/distribution/reservesys" role="STANDALONE">
 				<params>
 					<param name="RESERVETIME" value="99h"/>

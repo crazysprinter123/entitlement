@@ -4,6 +4,7 @@ Defines various constants
 import os
 
 # configure module
+RHSM_CONF = "rhsm.conf"
 RHSM_GUI_CONF = "rhsm_gui.conf"
 SAM_INSTALLATION_CONF = "sam_installation.conf"
 RHEL_INSTALLATION_CONF = "rhel_installation.conf"
@@ -21,6 +22,7 @@ VIRTWHO_ESX_PV_CONF = "virtwho_esx_pv.conf"
 SAM_JOB = "sam_latest_install_job_sample.xml"
 KVM_JOB = "virtwho_kvm_xen_job_sample.xml"
 ESX_JOB = "virtwho_esx_job_sample.xml"
+RHSM_JOB = "rhsm_job_sample.xml"
 RHSM_GUI_JOB = "rhsm_gui_job_sample.xml"
 
 # log module
