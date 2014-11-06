@@ -72,9 +72,9 @@ EOF
         rlRun "echo start testing .............."
         rlRun "cd /root/entitlement"
         rlRun "export PYTHONPATH=$PYTHONPATH:$/root/entitlement"
-        cases_list=$(ls testcases/rhsmgui | grep "^tc_ID.*py$")
+        cases_list=$(ls testcases/rhsm/rhsm_gui | grep "^tc_ID.*py$")
         for i in $cases_list; do
-            python testcases/rhsmgui/$i $i
+            python testcases/rhsm/rhsm_gui/$i $i
             if [ $? -eq 0 ]; then
                 rhts-report-result $i PASS runtime/result/default/runtime.log
             else

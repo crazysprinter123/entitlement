@@ -24,6 +24,9 @@ class BeakerCMD(Command):
     def create_runtime_job(self, job_xml):
         return BKJobParser().runtime_job_copy(job_xml)
 
+    def update_task(self, job_xml, task_name_old, task_name_new):
+        BKJobParser(job_xml).update_task(task_name_old, task_name_new)
+
     def update_job_param(self, job_xml, task_name, parameter, value):
         BKJobParser(job_xml).update_param(task_name, parameter, value)
 

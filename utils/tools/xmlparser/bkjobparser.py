@@ -15,6 +15,12 @@ class BKJobParser(XMLParser):
                         paramitem.setAttribute("value", param_value)
                         self.write_xml()
 
+    def update_task(self, task_name, new_value):
+        for taskitem in self.root.getElementsByTagName("task"):
+            if taskitem.getAttribute("name") == task_name:
+                taskitem.setAttribute("name", new_value)
+                self.write_xml()
+
     def update_distroRequires(self, tag_name, distro_name):
         for distroitem in self.root.getElementsByTagName("distroRequires"):
             distroitem.getElementsByTagName(tag_name)[0].setAttribute("value", distro_name)

@@ -24,7 +24,7 @@ class BKRHSM(BeakerBase):
 
         job_xml = beaker_command.create_runtime_job(RHSM_JOB)
         beaker_command.set_beaker_distro_name(job_xml, distro)
-        beaker_command.set_beaker_job_name(job_xml, "RHSM test on %s against %s" % (distro, sam_build))
+        beaker_command.set_beaker_job_name(job_xml, "RHSM testing on %s against %s" % (distro, sam_build))
 
 #         if beaker_command.get_rhel_version(distro) == 5:
 #             RHEL5_PACKAGES.append("@kvm")

@@ -82,6 +82,42 @@ RHEL5_PACKAGES = [
                 "tigervnc-server",
 ]
 
+RHEL7_PACKAGES = [
+                "@base",
+                "@core",
+                "@virtualization-client",
+                "@virtualization-hypervisor",
+                "@virtualization-platform",
+                "@virtualization-tools",
+                "@virtualization",
+                "@desktop-debugging",
+                "@dial-up",
+                "@fonts",
+                "@gnome-desktop",
+                "@guest-desktop-agents",
+                "@input-methods",
+                "@internet-browser",
+                "@multimedia",
+                "@print-client",
+                "@x11",
+                "nmap",
+                "bridge-utils",
+                "tunctl",
+                "rpcbind",
+                "qemu-kvm-tools",
+                "expect",
+                "pexpect",
+                "git",
+                "make",
+                "gcc",
+                "tigervnc-server",
+]
+
+GUI_PACKAGES = [
+              "python-twisted",
+              "at-spi-python",
+              ]
+
 PACKAGES = [
             "@base",
             "@core",

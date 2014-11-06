@@ -6,49 +6,7 @@
 		<recipe kernel_options="" kernel_options_post="" ks_meta="method=nfs" role="None" whiteboard="RHSM TESTING">
 			<autopick random="false"/>
 			<watchdog panic="ignore"/>
-			<packages>
-				<package name="@base"/>
-				<package name="@client-mgmt-tools"/>
-				<package name="@core"/>
-				<package name="@debugging"/>
-				<package name="@basic-desktop"/>
-				<package name="@desktop-debugging"/>
-				<package name="@desktop-platform"/>
-				<package name="@directory-client"/>
-				<package name="@fonts"/>
-				<package name="@general-desktop"/>
-				<package name="@graphical-admin-tools"/>
-				<package name="@input-methods"/>
-				<package name="@internet-browser"/>
-				<package name="@java-platform"/>
-				<package name="@legacy-x"/>
-				<package name="@network-file-system-client"/>
-				<package name="@perl-runtime"/>
-				<package name="@print-client"/>
-				<package name="@remote-desktop-clients"/>
-				<package name="@server-platform"/>
-				<package name="@server-policy"/>
-				<package name="@x11"/>
-				<package name="mtools"/>
-				<package name="pax"/>
-				<package name="python-dmidecode"/>
-				<package name="oddjob"/>
-				<package name="sgpio"/>
-				<package name="genisoimage"/>
-				<package name="wodim"/>
-				<package name="abrt-gui"/>
-				<package name="certmonger"/>
-				<package name="pam_krb5"/>
-				<package name="krb5-workstation"/>
-				<package name="libXmu"/>
-				<package name="perl-DBD-SQLite"/>
-				<package name="python-twisted"/>
-				<package name="at-spi-python"/>
-				<package name="tigervnc-server"/>
-				<package name="sendmail"/>
-				<package name="pexpect"/>
-				<package name="tigervnc"/>
-			</packages>
+			<packages/>
 			<ks_appends/>
 			<repos/>
 			<distroRequires>

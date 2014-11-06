@@ -54,27 +54,24 @@ EOF"
             rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
             yum -y install git
         fi
-        rlRun "rm -rf ~/.ssh/known_hosts"
-        rlRun "cat > /root/get-autotest-repo.sh <<EOF
-#!/usr/bin/expect
-spawn git clone git@qe-git.englab.nay.redhat.com:~/repo/hss-qe/entitlement/autotest
-expect \"yes/no\"
-send \"yes\r\"
-expect \"password:\"
-send \"redhat\r\"
-expect \"Resolving deltas: 100%\"
-sleep 30
-expect eof
-EOF"
-        rlRun "chmod 777 /root/get-autotest-repo.sh"
-        rlRun "cd /root/"
-        rlRun "if [ ! -d /root/autotest ]; then /root/get-autotest-repo.sh; fi" 0 "Git clone autotest"
-        rlRun "sleep 60"
-        rlRun "cd /root/autotest"
+        cd /root
+        git clone https://github.com/bluesky-sgao/entitlement
+        cd /root/entitlement
     rlPhaseEnd
 
     rlPhaseStartTest
-
+        rlRun "echo start testing .............."
+        rlRun "cd /root/entitlement"
+        rlRun "export PYTHONPATH=$PYTHONPATH:$/root/entitlement"
+        cases_list=$(ls testcases/rhsm/$RUN_LEVEL/ | grep "^tc_ID.*py$")
+        for i in $cases_list; do
+            python testcases/rhsm/$RUN_LEVEL/$i $i
+            if [ $? -eq 0 ]; then
+                rhts-report-result $i PASS runtime/result/default/runtime.log
+            else
+                rhts-report-result $i FAIL runtime/result/default/runtime.log
+            fi
+        done
     rlPhaseEnd
 
     rlPhaseStartCleanup
