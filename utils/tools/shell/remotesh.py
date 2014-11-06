@@ -8,9 +8,7 @@ from utils import logger
 try:
     import paramiko
 except ImportError:
-    print "Please install paramiko."
-    sys.exit(-1)
-
+    print "paramiko not installed, only local run supported"
 
 class RemoteSH(object):
     """
