@@ -3,7 +3,7 @@ from utils import logger
 from beaker.beakerbase import BeakerBase
 from utils.tools.shell.command import Command
 from utils.tools.shell.beakercmd import BeakerCMD
-from utils.constants import RHSM_CONF, RHSM_JOB
+from utils.constants import RHSM_CONF, RHSM_JOB, RHEL7_PACKAGES, PACKAGES
 
 class BKRHSM(BeakerBase):
     '''
@@ -26,13 +26,11 @@ class BKRHSM(BeakerBase):
         beaker_command.set_beaker_distro_name(job_xml, distro)
         beaker_command.set_beaker_job_name(job_xml, "RHSM testing on %s against %s" % (distro, sam_build))
 
-#         if beaker_command.get_rhel_version(distro) == 5:
-#             RHEL5_PACKAGES.append("@kvm")
-#             beaker_command.set_packages(job_xml, RHEL5_PACKAGES)
-#             beaker_command.set_beaker_distro_variant(job_xml, "")
-#         else:
-#             beaker_command.set_packages(job_xml, PACKAGES)
-
+        if beaker_command.get_rhel_version(distro) == 7:
+            beaker_command.set_packages(job_xml, RHEL7_PACKAGES)
+        else:
+            beaker_command.set_packages(job_xml, PACKAGES)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_LEVEL", "rhsm_level_1")
         job = beaker_command.job_submit(job_xml)
 
 if __name__ == "__main__":
