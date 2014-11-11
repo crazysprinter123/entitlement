@@ -62,10 +62,10 @@ EOF"
     rlPhaseStartTest
         rlRun "echo start testing .............."
         rlRun "cd /root/entitlement"
-        rlRun "export PYTHONPATH=$PYTHONPATH:$/root/entitlement"
+        rlRun "export PYTHONPATH=/root/entitlement"
         cases_list=$(ls testcases/rhsm/$RUN_LEVEL/ | grep "^tc_ID.*py$")
         for i in $cases_list; do
-            python testcases/rhsm/$RUN_LEVEL/$i $i
+            python testcases/rhsm/$RUN_LEVEL/$i
             if [ $? -eq 0 ]; then
                 rhts-report-result $i PASS runtime/result/default/runtime.log
             else
