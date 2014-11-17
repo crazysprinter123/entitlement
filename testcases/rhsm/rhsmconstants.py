@@ -5,19 +5,32 @@ from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 
 class RHSMConstants(object):
-    sam_cons = {
+    sam_cons6 = {
             "username": "admin",
             "password": "admin",
-            "autosubprod": "Red Hat Enterprise Linux Desktop",
-            "installedproductname": "Red Hat Enterprise Linux Desktop",
+            "autosubprod": "Red Hat Enterprise Linux Server",
+            "installedproductname": "Red Hat Enterprise Linux Server",
             "productid": "SYS0395",
-            "pid": "68",
+            "pid": "69",
             "pkgtoinstall": "zsh",
-            "productrepo": "rhel-6-desktop-rpms",
-            "betarepo": "rhel-6-desktop-beta-rpms",
+            "productrepo": "rhel-6-server-rpms",
+            "betarepo": "rhel-6-server-beta-rpms",
             "servicelevel": "STANDARD",
-            "releaselist": "6.1,6.2,6.3,6.4,6Client",
+            "releaselist": "6.1,6.2,6.3,6.4,6.5,6.6,6Server",
             }
+    sam_cons7 = {
+        "username": "admin",
+        "password": "admin",
+        "autosubprod": "Red Hat Enterprise Linux Desktop",
+        "installedproductname": "Red Hat Enterprise Linux Desktop",
+        "productid": "SYS0395",
+        "pid": "68",
+        "pkgtoinstall": "zsh",
+        "productrepo": "rhel-6-desktop-rpms",
+        "betarepo": "rhel-6-desktop-beta-rpms",
+        "servicelevel": "STANDARD",
+        "releaselist": "6.1,6.2,6.3,6.4,6Client",
+        }
     stage_cons = {
             "username": "stage_test_12",
             "password": "redhat",
@@ -97,8 +110,20 @@ class RHSMConstants(object):
 
     def get_constant(self, name):
         if self.server == "sam":
-            return self.sam_cons[name]
+            if self.get_os_serials() == "6":
+                return self.sam_cons6[name]
+            elif self.get_os_serials() == "7":
+                return self.sam_cons7[name]
         elif self.server == "stage":
             return self.stage_cons[name]
         elif self.server == "candlepin":
             return self.candlepin_cons[name]
+
+    def get_os_serials(self):
+        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
+        (ret, output) = Command().run(cmd, comments=False)
+        if ret == 0:
+            return output.strip("\n").strip(" ")
+            logger.info("It's successful to get system serials.")
+        else:
+            logger.info("It's failed to get system serials.")

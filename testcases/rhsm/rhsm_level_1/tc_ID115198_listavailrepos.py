@@ -1,50 +1,37 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID115198_listavailrepos(test, params, env):
-
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
-
+class tc_ID115198_listavailrepos(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         #register to server
-	username=ee().get_env(params)["username"]
-	password=ee().get_env(params)["password"]
-	eu().sub_register(session,username,password)
+        username=RHSMConstants().get_constant("username")
+        password=RHSMConstants().get_constant("password")
+        self.sub_register(username,password)
 
-	try:
-		#[A] - prepare test env
-		#get env variables
-		productid=ee().get_env(params)["productid"]
-		autosubprod=ee().get_env(params)["autosubprod"]
+        productid=RHSMConstants().get_constant("productid")
+        autosubprod=RHSMConstants().get_constant("autosubprod")
+        self.sub_autosubscribe(autosubprod)
 
-		#auto subscribe to a pool
-		eu().sub_autosubscribe(session, autosubprod)
+        productrepo=RHSMConstants().get_constant("productrepo")
+        betarepo=RHSMConstants().get_constant("betarepo")
+        try:
+            cmd="subscription-manager repos --list"
+            (ret,output)=self.runcmd(cmd,"list available repos")
+            if ret == 0 and productrepo in output and betarepo in output:
+                logger.info("It's successful to list available repos.")
+            else:
+                raise FailException("Test Failed - Failed to list available repos.")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error(str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("=========== End of Running Test Case: %s ==========="%__name__)
 
-		#check whether entitlement certificates generated and productid in them or not
-		#eu().sub_checkentitlementcerts(session,productid)      
-
-		#[B] - run the test
-		#list available repos
-                cmd="subscription-manager repos --list"
-		(ret,output)=eu().runcmd(session,cmd,"list available repos")
-                
-		productrepo=ee().get_env(params)["productrepo"]
-		betarepo=ee().get_env(params)["betarepo"]
-                if ret == 0 and productrepo in output and betarepo in output:
-			logging.info("It's successful to list available repos.")
-                else:
-                        raise error.TestFail("Test Failed - Failed to list available repos.")
-                
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when do list available repos:"+str(e))
-	finally:
-                eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
-
-
+if __name__ == "__main__":
+    unittest.main()
