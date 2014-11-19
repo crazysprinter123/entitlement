@@ -1,61 +1,63 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID141464_verify_consumer_deletion_from_server(test, params, env):
-
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
+class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
 
         #register to server
-	username=ee().get_env(params)["username"]
-	password=ee().get_env(params)["password"]
-	eu().sub_register(session,username,password)
-	
-	try:
-		#[A] - prepare test env
-		#get baseurl
-		if "8443" in params.get("baseurl"):
-			baseurl=params.get("baseurl")+"/candlepin"
-		elif params.get("samhostip") == None:
-			baseurl="https://"+params.get("hostname")+"/subscription"
-		else:
-			baseurl="https://"+params.get("samhostname")+"/sam/api"
+        username=RHSMConstants().get_constant("username")
+        password=RHSMConstants().get_constant("password")
+        self.sub_register(username,password)
+        try:
+            #get baseurl
+            baseurl = RHSMConstants().get_constant("baseurl")
+            samhostip = RHSMConstants().samhostip
 
-                #get consumerid
-                cmd="subscription-manager identity | grep identity"
-		(ret,output)=eu().runcmd(session,cmd,"get consumerid")
-                consumerid = output.split(':')[1].strip()
+            if "8443" in baseurl:
+                baseurl=baseurl+"/candlepin"
+            elif samhostip == None:
+                baseurl=baseurl+"/subscription"
+            else:
+                baseurl=baseurl+"/sam/api"
 
-                #[B] - run the test		
-		#Delete the consumer from candlepin server
-                cmd="curl -X DELETE -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s"%(baseurl,consumerid)
-                (ret,output)=eu().runcmd(session,cmd,"delete consumer from candlepin server")
-                
-                if ret == 0:
-			logging.info("It's successful to delete consumer from candlepin server.")
-                else:
-                        raise error.TestFail("Test Failed - Failed to delete consumer from candlepin server.")
+            #get consumerid
+            cmd="subscription-manager identity | grep identity"
+            (ret,output)=self.runcmd(cmd,"get consumerid")
+            consumerid = output.split(':')[1].strip()
 
-		#Check deleted consumer status
-		cmd="subscription-manager identity"
-		(ret,output)=eu().runcmd(session,cmd,"check deleted consumer status")
-		
-		if "Unit %s has been deleted"%(consumerid) in output:
-			logging.info("It's successful to check deleted consumer status.")
-		else:
-			raise error.TestFail("Test Failed - Failed to check deleted consumer status.")
+            #Delete the consumer from candlepin server
+            cmd="curl -X DELETE -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s"%(baseurl,consumerid)
+            (ret,output)=self.runcmd(cmd,"delete consumer from candlepin server")
+            if ret == 0:
+                logger.info("It's successful to delete consumer from candlepin server.")
+            else:
+                raise FailException("Test Failed - Failed to delete consumer from candlepin server.")
 
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when verify consumer status after being deleted from server:"+str(e))
+            #Check deleted consumer status
+            cmd="subscription-manager identity"
+            (ret,output)=self.runcmd(cmd,"check deleted consumer status")
 
-	finally:
-		#clean local consumer and subscription data
-		cmd="subscription-manager clean"
-		(ret,output)=eu().runcmd(session,cmd,"clean local data")
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
+            if "Unit %s has been deleted"%(consumerid) in output:
+                logger.info("It's successful to check deleted consumer status.")
+            else:
+                raise FailException("Test Failed - Failed to check deleted consumer status.")
+            self.assert_(True, case_name)
+
+        except Exception, e:
+            logger.error(str(e))
+            raise FailException("Test Failed - error happened when verify consumer status after being deleted from server:"+str(e))
+            self.assert_(False, case_name)
+
+        finally:
+            #clean local consumer and subscription data
+            cmd="subscription-manager clean"
+            (ret,output)=self.runcmd(cmd,"clean local data")
+            self.restore_environment()
+            logger.info("=========== End of Running Test Case: %s ==========="%__name__)
+
+if __name__ == "__main__":
+    unittest.main()

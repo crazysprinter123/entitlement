@@ -12,7 +12,6 @@ class tc_ID115198_listavailrepos(RHSMBase):
         password=RHSMConstants().get_constant("password")
         self.sub_register(username,password)
 
-        productid=RHSMConstants().get_constant("productid")
         autosubprod=RHSMConstants().get_constant("autosubprod")
         self.sub_autosubscribe(autosubprod)
 
@@ -31,7 +30,7 @@ class tc_ID115198_listavailrepos(RHSMBase):
             self.assert_(False, case_name)
         finally:
             self.restore_environment()
-            logger.info("=========== End of Running Test Case: %s ==========="%__name__)
+            logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
 if __name__ == "__main__":
     unittest.main()
