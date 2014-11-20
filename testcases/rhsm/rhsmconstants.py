@@ -8,10 +8,12 @@ class RHSMConstants(object):
     sam_cons6 = {
             "username": "admin",
             "password": "admin",
+            "baseurl": "http://samserv.redhat.com:443",
             "autosubprod": "Red Hat Enterprise Linux Server",
             "installedproductname": "Red Hat Enterprise Linux Server",
             "productid": "SYS0395",
             "pid": "69",
+            "service_level": "PREMIUM",
             "pkgtoinstall": "zsh",
             "productrepo": "rhel-6-server-rpms",
             "betarepo": "rhel-6-server-beta-rpms",
@@ -21,10 +23,12 @@ class RHSMConstants(object):
     sam_cons7 = {
         "username": "admin",
         "password": "admin",
+        "baseurl": "http://samserv.redhat.com:443",
         "autosubprod": "Red Hat Enterprise Linux Desktop",
         "installedproductname": "Red Hat Enterprise Linux Desktop",
         "productid": "SYS0395",
         "pid": "68",
+        "service_level": "PREMIUM",
         "pkgtoinstall": "zsh",
         "productrepo": "rhel-6-desktop-rpms",
         "betarepo": "rhel-6-desktop-beta-rpms",
@@ -34,6 +38,7 @@ class RHSMConstants(object):
     stage_cons = {
             "username": "stage_test_12",
             "password": "redhat",
+            "baseurl": "https://subscription.rhn.stage.redhat.com:443",
             "autosubprod": "Red Hat Enterprise Linux Server",
             "installedproductname": "Red Hat Enterprise Linux Server",
             "productid": "RH0103708",
@@ -47,11 +52,14 @@ class RHSMConstants(object):
     candlepin_cons = {
             "username": "qa@redhat.com",
             "password": "HWj8TE28Qi0eP2c",
+            # please install a localcandlepin whose hostname is localcandlepin.redhat.com
+            "baseurl": "https://localcandlepin.redhat.com:8443",
             }
 
     server = ""
     confs = None
     __instance = None
+    samhostip = None
     def __new__(cls):
         if cls.__instance is None:
             cls.__instance = super(RHSMConstants, cls).__new__(cls)
@@ -65,6 +73,7 @@ class RHSMConstants(object):
         self.server = self.confs._confs["server"]
         if self.server == "sam":
             self.configure_sam_host(self.confs._confs["samhostname"], self.confs._confs["samhostip"])
+            self.samhostip = self.confs._confs["samhostip"]
         elif self.server == "stage":
             self.configure_stage_host(self.confs._confs["stage_name"])
         elif self.server == "candlepin":
@@ -80,7 +89,7 @@ class RHSMConstants(object):
                 logger.info("Succeeded to configure /etc/hosts")
             else:
                 raise FailException("Failed to configure /etc/hosts")
-            # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
+            # config hostname, prefix, port,   and repo_ca_crt by installing candlepin-cert
             cmd = "rpm -qa | grep candlepin-cert-consumer"
             ret, output = Command().run(cmd)
             if ret == 0:

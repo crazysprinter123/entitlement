@@ -480,6 +480,7 @@ class RHSMBase(unittest.TestCase):
 #             platform = guestname.split('-')[1].strip()
 #             version = guestname.split('-')[2].strip().split('.')[0].strip()
 #             currentversion = version + platform
+
 #             return currentversion
 # 
 #     def sub_getcurrentversion2(self, guestname):

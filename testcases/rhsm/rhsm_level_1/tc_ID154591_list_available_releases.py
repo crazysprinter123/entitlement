@@ -1,30 +1,22 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID154591_list_available_releases(test, params, env):
-
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
-
+class tc_ID154591_list_available_releases(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         #register to server
-	username=ee().get_env(params)["username"]
-	password=ee().get_env(params)["password"]
-	eu().sub_register(session,username,password)
+        username=RHSMConstants().get_constant("username")
+        password=RHSMConstants().get_constant("password")
+        self.sub_register(username,password)
 
-	try:   
-		#get env variables
-		productid=ee().get_env(params)["productid"]
-		autosubprod=ee().get_env(params)["autosubprod"]
-
-		#auto subscribe to a pool
-		eu().sub_autosubscribe(session, autosubprod)
-
-		#list available releases
+        try:
+            #auto subscribe to a pool
+            autosubprod=RHSMConstants().get_constant("autosubprod")
+            self.sub_autosubscribe(autosubprod)#get env variables
+             #list available releases
 		guestname=params.get("guest_name")
 		currentversion=eu().sub_getcurrentversion(session,guestname)
 		cmd="subscription-manager release --list"

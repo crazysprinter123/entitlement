@@ -1,52 +1,56 @@
-import sys, os, subprocess, commands
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID126354_import_invalid_entitlement_cert_via_CLI(test, params, env):
-	
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
+class tc_ID126354_import_invalid_entitlement_cert_via_CLI(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username=RHSMConstants().get_constant("username")
+            password=RHSMConstants().get_constant("password")
+            self.sub_register(username,password)
 
-	#get username and password
-	username=ee().get_env(params)["username"]
-	password=ee().get_env(params)["password"]
-	eu().sub_register(session,username,password)
+            productid=RHSMConstants().get_constant("productid")
+            autosubprod=RHSMConstants().get_constant("autosubprod")
+            self.sub_autosubscribe(autosubprod)
 
-	try:
-		autosubprod=ee().get_env(params)["autosubprod"]
-		#auto subscribe to a pool
-		eu().sub_autosubscribe(session, autosubprod)
-		
-		cmd='cat /etc/pki/entitlement/*.pem > /home/foo.pem'
-		(ret,output)=eu().runcmd(session,cmd,"prepare a invalid pem file")
-		if ret == 0:
-			cmd='subscription-manager unsubscribe --all'
-			(ret,output)=eu().runcmd(session,cmd,"unsubscribe")
-			if ret == 0:
-				cmd='subscription-manager import --certificate=/home/foo.pem'
-				(ret,output)=eu().runcmd(session,cmd,"Import an entitlement cert")
-				if ret == 0 and "Successfully imported certificate foo.pem" in output:
-					cmd='subscription-manager list --consumed'
-					(ret,output)=eu().runcmd(session,cmd,"list consumed")
-					if ret ==0 and 'Consumed Subscriptions' in output:
-						logging.info('It is successful to verify importing invalid entitlement cert via CLI')
-					else:
-						raise error.TestFail("Test Failed - Failed to list consumed subscriptions.")
-				else:
-					raise error.TestFail("Test Failed - Failed to importing invalid entitlement cert via CLI")
-			else:
-				raise error.TestFail("Test Failed - Failed to unsubscribe")
-		else:
-			raise error.TestFail("Test Failed - Failed to prepare a invalid pem file")  
+            cmd='cat /etc/pki/entitlement/*.pem > /home/foo.pem'
+            (ret,output)=self.runcmd(cmd,"prepare a invalid pem file")
+            if ret == 0:
+                #unsubscribe
+                cmd='subscription-manager unsubscribe --all'
+                (ret,output)=self.runcmd(cmd,"unsubscribe")
+                if ret == 0 and "removed at the server" in output:
+                    logger.info("It's successful to remove all subscriptions")
+                else:
+                    raise FailException("Test Failed - Failed to remove subscriptions.")
+                #import certs
+                cmd='subscription-manager import --certificate=/home/foo.pem'
+                (ret,output)=self.runcmd(cmd,"import certs")
+                if ret == 0 and "Successfully imported certificate" in output:
+                    logger.info("It's successful to import certs")
+                else:
+                    raise FailException("Test Failed - Failed to import certs.")
+                #check consumed status
+                cmd='subscription-manager list --consumed'
+                (ret,output)=self.runcmd(cmd,"list consumed subscriptions")
+                if ret == 0 and "Consumed Subscriptions" in output:
+                    logger.info("It's successful to verify importing invalid entitlement cert via CLI")
+                else:
+                    raise FailException("Test Failed - Failed to verify importing invalid entitlement cert via CLI.")
+            else:
+                raise FailException("Test Failed - error happened when import certs.")
+            self.assert_(True, case_name)
         except Exception, e:
-                logging.error(str(e))
-                raise error.TestFail("Test Failed - error happened when do verify importing invalid entitlement cert via CLI"+str(e))
+            logger.error(str(e))
+            self.assert_(False, case_name)
         finally:
-		cmd='rm -rf /home/foo.pem'
-		(ret,output)=eu().runcmd(session,cmd,"remove /home/foo.pem file")
-		eu().sub_unregister(session)
-                logging.info("=========== End of Running Test Case: %s ==========="%__name__)
+            cmd='rm -rf /home/foo.pem'
+            (ret,output)=self.runcmd(cmd,"remove /home/foo.pem file")
+            self.restore_environment()
+            logger.info("=========== End of Running Test Case: %s ==========="%__name__)
+
+if __name__ == "__main__":
+    unittest.main()
