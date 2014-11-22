@@ -27,4 +27,4 @@ class ODSReader:
                         print n.data
 
 if __name__ == "__main__":
-    ODSReader("/root/Desktop/test.ods")
+    ODSReader("test.ods")
