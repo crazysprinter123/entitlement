@@ -90,6 +90,15 @@ class RHSMBase(unittest.TestCase):
             logger.info("There is no identity certs in the consumer directory.")
             return False
 
+    def sub_set_servicelevel(self, service_level):
+        # set service-level
+        cmd = "subscription-manager service-level --set=%s" % service_level
+        (ret, output) = self.runcmd(cmd, "set service-level as %s" % service_level)
+        if ret == 0 and "Service level set to: %s" % service_level in output:
+            logger.info("It's successful to set service-level as %s" % service_level)
+        else:
+            raise FailException("Test Failed - Failed to set service-level as %s" % service_level)
+
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
 #                     vm.copy_files_to(sourcepath, targetpath)
@@ -487,15 +496,7 @@ class RHSMBase(unittest.TestCase):
 #             os_version = guestname.split('-')[-1].strip()
 #             return os_version
 # 
-    def sub_set_servicelevel(self, service_level):
-            # set service-level
-            cmd = "subscription-manager service-level --set=%s" % service_level
-            (ret, output) = self.runcmd(cmd, "set service-level as %s" % service_level)
 
-            if ret == 0 and "Service level set to: %s" % service_level in output:
-                    logger.info("It's successful to set service-level as %s" % service_level)
-            else:
-                    raise FailException("Test Failed - Failed to set service-level as %s" % service_level)
 
 
 #             # stop rhsmcertd because healing(autosubscribe) will run 2 mins after the machine is started, then every 24 hours after that, which will influence our content test.
