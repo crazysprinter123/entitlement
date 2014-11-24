@@ -487,17 +487,17 @@ class RHSMBase(unittest.TestCase):
 #             os_version = guestname.split('-')[-1].strip()
 #             return os_version
 # 
-#     def sub_set_servicelevel(self, service_level):
-#             # set service-level
-#             cmd = "subscription-manager service-level --set=%s" % service_level
-#             (ret, output) = self.runcmd(cmd, "set service-level as %s" % service_level)
-# 
-#             if ret == 0 and "Service level set to: %s" % service_level in output:
-#                     logger.info("It's successful to set service-level as %s" % service_level)
-#             else:
-#                     raise FailException("Test Failed - Failed to set service-level as %s" % service_level)
-# 
-# 
+    def sub_set_servicelevel(self, service_level):
+            # set service-level
+            cmd = "subscription-manager service-level --set=%s" % service_level
+            (ret, output) = self.runcmd(cmd, "set service-level as %s" % service_level)
+
+            if ret == 0 and "Service level set to: %s" % service_level in output:
+                    logger.info("It's successful to set service-level as %s" % service_level)
+            else:
+                    raise FailException("Test Failed - Failed to set service-level as %s" % service_level)
+
+
 #             # stop rhsmcertd because healing(autosubscribe) will run 2 mins after the machine is started, then every 24 hours after that, which will influence our content test.
 #             cmd = 'service rhsmcertd status'
 #             (ret, output) = self.runcmd(cmd, "check rhsmcertd service status")
