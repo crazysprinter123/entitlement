@@ -44,11 +44,11 @@ def excel_table_byname(file='file.xls', colnameindex=0, by_name=u'Sheet1'):
     return list
 
 def main():
-   tables = excel_table_byindex()
+   tables = excel_table_byindex('test.xlsx')
    for row in tables:
        print row
 
-   tables = excel_table_byname()
+   tables = excel_table_byname('test.xlsx')
    for row in tables:
        print row
 
