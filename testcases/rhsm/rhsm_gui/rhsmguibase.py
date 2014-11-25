@@ -116,7 +116,7 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_exist("information-dialog")
 
     def click_dialog_next_button(self):
-        if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
+        if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6" or RHSMGuiLocator().get_os_serials() == "7":
             logger.info("click_dialog_next_button")
             self.click_button("register-dialog", "dialog-register-button")
             self.check_window_exist("register-dialog")
