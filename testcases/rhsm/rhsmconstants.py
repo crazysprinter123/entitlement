@@ -8,7 +8,7 @@ class RHSMConstants(object):
     sam_cons6 = {
             "username": "admin",
             "password": "admin",
-            "baseurl": "http://samserv.redhat.com:443",
+            "baseurl": "https://samserv.redhat.com:443",
             "autosubprod": "Red Hat Enterprise Linux Server",
             "installedproductname": "Red Hat Enterprise Linux Server",
             "productid": "SYS0395",
@@ -23,7 +23,7 @@ class RHSMConstants(object):
     sam_cons7 = {
         "username": "admin",
         "password": "admin",
-        "baseurl": "http://samserv.redhat.com:443",
+        "baseurl": "https://samserv.redhat.com:443",
         "autosubprod": "Red Hat Enterprise Linux Desktop",
         "installedproductname": "Red Hat Enterprise Linux Desktop",
         "productid": "SYS0395",
