@@ -1,33 +1,30 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID190672_subscribe_with_no_options(test, params, env):
-
-	session, vm = eu().init_session_vm(params, env)
-	logging.info("=========== Begin of Running Test Case: %s ===========" %__name__)
-
+class tc_ID190672_subscribe_with_no_options(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-		#register to server
-		username = ee().get_env(params)["username"]
-		password = ee().get_env(params)["password"]
-		eu().sub_register(session, username, password)
+            #register to server
+            username=RHSMConstants().get_constant("username")
+            password=RHSMConstants().get_constant("password")
+            self.sub_register(username,password)
+            cmd = "subscription-manager subscribe"
+            (ret, output) = self.runcmd(cmd, "running subscribe command with no options")
+            if ret != 0 and "Error: This command requires that you specify a pool with --pool or use --auto" in output :
+                logger.info("It's successful to check the error message when run subscribe with no options.")
+            else:
+                raise FailException("Test Failed - Failed to check the error message when run subscribe with no options.")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error(str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
-                cmd = "subscription-manager subscribe"
-                (ret, output) = eu().runcmd(session, cmd, "running subscribe command with no options")
-
-		if ret != 0 and "Error: This command requires that you specify a pool with --pool or use --auto" in output :
-			logging.info("It's successful to check the error message when run subscribe with no options.")
-		else:
-			raise error.TestFail("Test Failed - Failed to check the error message when run subscribe with no options.")
-
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened to run subscribe with no options:" + str(e))
-	finally:
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ===========" %__name__)
+if __name__ == "__main__":
+    unittest.main()

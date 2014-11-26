@@ -99,6 +99,46 @@ class RHSMBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to set service-level as %s" % service_level)
 
+    def sub_checkproductcert(self, productid):
+        rctcommand = self.check_rct()
+        if rctcommand == 0:
+            cmd = "for i in /etc/pki/product/*; do rct cat-cert $i; done"
+        else:
+            cmd = "for i in /etc/pki/product/*; do openssl x509 -text -noout -in $i; done"
+        (ret, output) = self.runcmd(cmd, "checking product cert")
+        if ret == 0:
+            if ("1.3.6.1.4.1.2312.9.1.%s" % productid in output) or ("ID: %s" % productid in output and "Path: /etc/pki/product/%s.pem" % productid in output):
+                logger.info("The product cert is verified.")
+            else:
+                raise FailException("Test Failed - The product cert is not correct.")
+        else:
+            raise FailException("Test Failed - Failed to check product cert.")
+
+    def check_rct(self):
+        cmd = "rct cat-cert --help"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("rct cat-cert command can be used in the system")
+            return True
+        else:
+            logger.info("rct cat-cert command can not be used in the system")
+            return False
+
+    def sub_unsubscribe(self):
+        cmd = "subscription-manager unsubscribe --all"
+        (ret, output) = self.runcmd(cmd, "unsubscribe")
+        expectout = "This machine has been unsubscribed from"
+        expectoutnew = "subscription removed from this system."
+        expectout5101 = "subscription removed at the server."
+        expectout5102 = "local certificate has been deleted."
+        if ret == 0:
+            if output.strip() == "" or (((expectout5101 in output) and (expectout5102 in output)) or expectout in output or expectoutnew in output):
+                logger.info("It's successful to unsubscribe.")
+            else:
+                raise FailException("Test Failed - The information shown after unsubscribed is not correct.")
+        else:
+            raise FailException("Test Failed - Failed to unsubscribe.")
+
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
 #                     vm.copy_files_to(sourcepath, targetpath)
@@ -372,16 +412,7 @@ class RHSMBase(unittest.TestCase):
 #             else:
 #                     raise FailException("Test Failed - Failed to subscribe.")
 # 
-#     def check_rct(self):
-#             cmd = "rct cat-cert --help"
-#             (ret, output) = self.runcmd(cmd, "check rct cat-cert command")
-#             if ret == 0:
-#                     logger.info("rct cat-cert command can be used in the system")
-#             else:
-#                     logger.info("rct cat-cert command can not be used in the system")
-# 
-#             return ret
-# 
+
 #     def sub_checkentitlementcerts(self, productid):
 #             rctcommand = self.check_rct()
 #             if rctcommand == 0:
@@ -402,22 +433,7 @@ class RHSMBase(unittest.TestCase):
 # 
 
 # 
-#     def sub_unsubscribe(self):
-#             cmd = "subscription-manager unsubscribe --all"
-#             (ret, output) = self.runcmd(cmd, "unsubscribe")
-#             expectout = "This machine has been unsubscribed from"
-#             expectoutnew = "subscription removed from this system."
-#             expectout5101 = "subscription removed at the server."
-#             expectout5102 = "local certificate has been deleted."
-#             if ret == 0:
-#                     if output.strip() == "" or (((expectout5101 in output) and (expectout5102 in output)) \
-#                         or expectout in output or expectoutnew in output):
-#                             logger.info("It's successful to unsubscribe.")
-#                     else:
-#                             raise FailException("Test Failed - The information shown after unsubscribed is not correct.")
-#             else:
-#                     raise FailException("Test Failed - Failed to unsubscribe.")
-# 
+
 #     def cnt_subscribe_product_with_specified_sku(self, prodsku):
 #             # subscribe with the specified prodsku
 #             dictlist = self.sub_listavailpools_of_sku(prodsku)
@@ -448,21 +464,7 @@ class RHSMBase(unittest.TestCase):
 #                     logger.info("The subscription of the product is not consumed.")
 #                     return False
 # 
-#     def sub_checkproductcert(self, productid):
-#             rctcommand = self.check_rct()
-#             if rctcommand == 0:
-#                     cmd = "for i in /etc/pki/product/*; do rct cat-cert $i; done"
-#             else:
-#                     cmd = "for i in /etc/pki/product/*; do openssl x509 -text -noout -in $i; done"
-#             (ret, output) = self.runcmd(cmd, "checking product cert")
-#             if ret == 0:
-#                     if ("1.3.6.1.4.1.2312.9.1.%s" % productid in output) or ("ID: %s" % productid in output and "Path: /etc/pki/product/%s.pem" % productid in output):
-#                             logger.info("The product cert is verified.")
-#                     else:
-#                             raise FailException("Test Failed - The product cert is not correct.")
-#             else:
-#                     raise FailException("Test Failed - Failed to check product cert.")
-# 
+
 #     def get_subscription_serialnumlist(self):
 #             cmd = "ls /etc/pki/entitlement/ | grep -v key.pem"
 #             (ret, output) = self.runcmd(cmd, "list all certificates in /etc/pki/entitlement/")
