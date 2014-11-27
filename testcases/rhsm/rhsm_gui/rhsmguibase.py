@@ -6,6 +6,108 @@ from utils.exception.failexception import FailException
 
 class RHSMGuiBase(unittest.TestCase):
     # ========================================================
+    #     0. LDTP GUI Common Functions
+    # ========================================================
+    def restore_gui_environment(self):
+        self.close_rhsm_gui()
+        self.unregister()
+
+    def close_rhsm_gui(self):
+        cmd = "killall -9 subscription-manager-gui"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("It's successful to close subscription-manager-gui.")
+
+    def unregister(self):
+        # close subscription-manager-gui
+        cmd = "subscription-manager unregister"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("It's successful to unregister system.")
+
+    def capture_image(self, image_name="", window=""):
+        # capture image and name it by time
+        time.sleep(5.0)
+        image_path = GUI_IMG_PATH
+        if not os.path.exists(GUI_IMG_PATH):
+            os.makedirs(GUI_IMG_PATH)
+        picture_name = time.strftime('%Y%m%d%H%M%S') + "-" + image_name + ".png"
+        ldtp.imagecapture(window, image_path + "/" + picture_name)
+        logger.info("capture image: %s to runtime directory" % picture_name)
+
+    def list_objects(self, window):
+        logger.info("get objects list in window: %s" % window)
+        all_objects_list = self.__parse_objects(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
+        logger.info("sorted all_objects_list: %s" % all_objects_list)
+
+    def __parse_objects(self, objects_list):
+        logger.info("parse objects list")
+        window_list = []
+        tab_list = []
+        button_list = []
+        table_list = []
+        text_list = []
+        menu_list = []
+        checkbox_list = []
+        label_list = []
+        others_list = []
+        parsed_objects_list = [window_list, tab_list, button_list, table_list, text_list, menu_list, checkbox_list, label_list, others_list]
+        for item in objects_list:
+            if item.startswith("frm") or item.startswith("dlg"):
+                window_list.append(item)
+            elif item.startswith("ptab"):
+                tab_list.append(item)
+            elif item.startswith("btn"):
+                button_list.append(item)
+            elif item.startswith("ttbl") or item.startswith("tbl"):
+                table_list.append(item)
+            elif item.startswith("txt"):
+                text_list.append(item)
+            elif item.startswith("mnu"):
+                menu_list.append(item)
+            elif item.startswith("chk"):
+                checkbox_list.append(item)
+            elif item.startswith("lbl"):
+                label_list.append(item)
+            else:
+                others_list.append(item)
+        return parsed_objects_list
+
+    def check_window_exist(self, window):
+        ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window))
+
+    def close_window(self, window):
+        ldtp.closewindow(RHSMGuiLocator().get_locator(window))
+        self.check_window_closed(window)
+
+    def check_window_closed(self, window):
+        ldtp.waittillguinotexist(RHSMGuiLocator().get_locator(window))
+
+    def check_window_open(self, window):
+        self.check_window_exist(window)
+        return ldtp.guiexist(RHSMGuiLocator().get_locator(window))
+
+    def check_element_exist(self, window, type, name):
+        logger.info("check_element_exist")
+        logger.info(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
+        return ldtp.guiexist(RHSMGuiLocator().get_locator(window), type + name)
+
+    def click_button(self, window, button_name):
+        ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))
+
+    def click_menu(self, window, menu_name):
+        ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
+
+    def check_checkbox(self, window, checkbox_name):
+        ldtp.check(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
+
+    def uncheck_checkbox(self, window, checkbox_name):
+        ldtp.uncheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
+
+    def verifycheck_checkbox(self, window, checkbox_name):
+        return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
+
+    # ========================================================
     #     1. LDTP GUI Keyword Functions
     # ========================================================
     def open_subscription_manager(self):
@@ -697,7 +799,7 @@ class RHSMGuiBase(unittest.TestCase):
             else:
                 raise FailException("Failed to check certificate files in /etc/pki/consumer!")
         else:
-            if not ret == 0 :
+            if ret != 0 or not ("cert.pem" in output or "key.pem" in output):
                 logger.info("It is successful to check certificate files in /etc/pki/consumer!")
             else:
                 raise FailException("Failed to check certificate files in /etc/pki/consumer!")
@@ -896,105 +998,3 @@ class RHSMGuiBase(unittest.TestCase):
                 raise FailException("Test Failed - The information shown after unregistered is not correct.")
         else:
             raise FailException("Test Failed - Failed to unregister.")
-
-    # ========================================================
-    #     LDTP GUI Common Functions
-    # ========================================================
-    def restore_gui_environment(self):
-        self.close_rhsm_gui()
-        self.unregister()
-
-    def close_rhsm_gui(self):
-        cmd = "killall -9 subscription-manager-gui"
-        (ret, output) = Command().run(cmd)
-        if ret == 0:
-            logger.info("It's successful to close subscription-manager-gui.")
-
-    def unregister(self):
-        # close subscription-manager-gui
-        cmd = "subscription-manager unregister"
-        (ret, output) = Command().run(cmd)
-        if ret == 0:
-            logger.info("It's successful to unregister system.")
-
-    def capture_image(self, image_name="", window=""):
-        # capture image and name it by time
-        time.sleep(5.0)
-        image_path = GUI_IMG_PATH
-        if not os.path.exists(GUI_IMG_PATH):
-            os.makedirs(GUI_IMG_PATH)
-        picture_name = time.strftime('%Y%m%d%H%M%S') + "-" + image_name + ".png"
-        ldtp.imagecapture(window, image_path + "/" + picture_name)
-        logger.info("capture image: %s to runtime directory" % picture_name)
-
-    def list_objects(self, window):
-        logger.info("get objects list in window: %s" % window)
-        all_objects_list = self.__parse_objects(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
-        logger.info("sorted all_objects_list: %s" % all_objects_list)
-
-    def __parse_objects(self, objects_list):
-        logger.info("parse objects list")
-        window_list = []
-        tab_list = []
-        button_list = []
-        table_list = []
-        text_list = []
-        menu_list = []
-        checkbox_list = []
-        label_list = []
-        others_list = []
-        parsed_objects_list = [window_list, tab_list, button_list, table_list, text_list, menu_list, checkbox_list, label_list, others_list]
-        for item in objects_list:
-            if item.startswith("frm") or item.startswith("dlg"):
-                window_list.append(item)
-            elif item.startswith("ptab"):
-                tab_list.append(item)
-            elif item.startswith("btn"):
-                button_list.append(item)
-            elif item.startswith("ttbl") or item.startswith("tbl"):
-                table_list.append(item)
-            elif item.startswith("txt"):
-                text_list.append(item)
-            elif item.startswith("mnu"):
-                menu_list.append(item)
-            elif item.startswith("chk"):
-                checkbox_list.append(item)
-            elif item.startswith("lbl"):
-                label_list.append(item)
-            else:
-                others_list.append(item)
-        return parsed_objects_list
-
-    def check_window_exist(self, window):
-        ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window))
-
-    def close_window(self, window):
-        ldtp.closewindow(RHSMGuiLocator().get_locator(window))
-        self.check_window_closed(window)
-
-    def check_window_closed(self, window):
-        ldtp.waittillguinotexist(RHSMGuiLocator().get_locator(window))
-
-    def check_window_open(self, window):
-        self.check_window_exist(window)
-        return ldtp.guiexist(RHSMGuiLocator().get_locator(window))
-
-    def check_element_exist(self, window, type, name):
-        logger.info("check_element_exist")
-        logger.info(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
-        return ldtp.guiexist(RHSMGuiLocator().get_locator(window), type + name)
-
-    def click_button(self, window, button_name):
-        ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))
-
-    def click_menu(self, window, menu_name):
-        ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
-
-    def check_checkbox(self, window, checkbox_name):
-        ldtp.check(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
-
-    def uncheck_checkbox(self, window, checkbox_name):
-        ldtp.uncheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
-
-    def verifycheck_checkbox(self, window, checkbox_name):
-        return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
