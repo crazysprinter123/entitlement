@@ -15,22 +15,22 @@ class tc_ID154591_list_available_releases(RHSMBase):
         try:
             #auto subscribe to a pool
             autosubprod=RHSMConstants().get_constant("autosubprod")
-            self.sub_autosubscribe(autosubprod)#get env variables
-             #list available releases
-		guestname=params.get("guest_name")
-		currentversion=eu().sub_getcurrentversion(session,guestname)
-		cmd="subscription-manager release --list"
-		(ret,output)=eu().runcmd(session,cmd,"list available releases")
-		
+            self.sub_autosubscribe(autosubprod)
+            #list available releases
+            currentversion=self.sub_getcurrentversion()
+            cmd="subscription-manager release --list"
+            (ret,output)=self.runcmd(cmd,"list available releases")
+            if ret == 0 and currentversion in output:
+                logger.info("It's successful to list available releases.")
+            else:
+                raise FailException("Test Failed - Failed to list available releases.")
+            self.assert_(True, case_name)
+        except Exception, e:
+                logger.error("Test Failed - ERROR Message:" + str(e))
+                self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-	        if ret == 0 and currentversion in output:      
-           		logging.info("It's successful to list available releases.")	
-                else:
-        	        raise error.TestFail("Test Failed - Failed to list available releases.")
-
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when do list available releases:"+str(e))
-	finally:
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
+if __name__ == "__main__":
+    unittest.main()

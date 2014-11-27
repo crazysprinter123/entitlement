@@ -139,6 +139,29 @@ class RHSMBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to unsubscribe.")
 
+    def sub_getcurrentversion(self):
+        version=None
+        platform=None
+        currentversion=None
+        # get version
+        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
+        (ret, output) = Command().run(cmd, comments=False)
+        if ret == 0:
+            version=output.strip("\n").strip(" ")
+            logger.info("It's successful to get system version.")
+        else:
+            logger.info("It's failed to get system version.")
+        #get paltform
+        cmd="lsb_release -i"
+        (ret, output) = Command().run(cmd, comments=False)
+        if ret == 0:
+            platform=output.split("Enterprise")[1].strip(" ")
+            logger.info("It's successful to get system platform")
+        else:
+            logger.info("It's failed to get system platform.")
+        currentversion = version + platform
+        return currentversion
+
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
 #                     vm.copy_files_to(sourcepath, targetpath)
@@ -487,12 +510,7 @@ class RHSMBase(unittest.TestCase):
 # 
 
 # 
-#     def sub_getcurrentversion(self, guestname):
-#             platform = guestname.split('-')[1].strip()
-#             version = guestname.split('-')[2].strip().split('.')[0].strip()
-#             currentversion = version + platform
 
-#             return currentversion
 # 
 #     def sub_getcurrentversion2(self, guestname):
 #             os_version = guestname.split('-')[-1].strip()

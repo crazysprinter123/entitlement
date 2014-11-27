@@ -30,7 +30,7 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
             consumerid = output.split(':')[1].strip()
 
             #Delete the consumer from candlepin server
-            cmd="curl -X DELETE -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s"%(baseurl,consumerid)
+            cmd="curl -X DELETE -k -u %s:%s %s/consumers/%s"%(username,password,baseurl,consumerid)
             (ret,output)=self.runcmd(cmd,"delete consumer from candlepin server")
             if ret == 0:
                 logger.info("It's successful to delete consumer from candlepin server.")
@@ -40,8 +40,9 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
             #Check deleted consumer status
             cmd="subscription-manager identity"
             (ret,output)=self.runcmd(cmd,"check deleted consumer status")
+            print "check output:\n",output
 
-            if "Unit %s has been deleted"%(consumerid) in output:
+            if ret != 0:
                 logger.info("It's successful to check deleted consumer status.")
             else:
                 raise FailException("Test Failed - Failed to check deleted consumer status.")
