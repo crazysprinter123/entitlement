@@ -17,6 +17,7 @@ class RHSMGuiLocator(object):
     'import-cert-dialog':                    'dlgImportCertificates',
     'select-file-dialog':                    'dlgSelectAFile',
     'system-facts-dialog':                   'dlgfacts_dialog',
+    'system-facts-dialog-7':                 'frmSubscriptionManager-Facts',
     'search-dialog':                         'frmSearching',
     'proxy-configuration-dialog':            'dlgProxyConfiguration',
     'information-dialog':                    'dlgInformation',
