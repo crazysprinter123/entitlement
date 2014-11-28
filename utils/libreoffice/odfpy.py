@@ -21,6 +21,7 @@ class ODSReader:
             if len(cells) == 1:  # ignore blank rows
                 continue
             else:
+                print "#"*50
                 # for each cell
                 for cell in cells:
                     textContent = ""
@@ -45,6 +46,7 @@ class ODSReader:
                                         print textContent
 
 if __name__ == "__main__":
-    ODSReader("test.ods")
+#     ODSReader("test.ods")
+    ODSReader("SKU_Matrix_RHEL_POWER.ods")
 # improvement
 # 1, can not read blanks at the begin or end of cells
