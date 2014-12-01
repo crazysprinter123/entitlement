@@ -46,7 +46,4 @@ class ODSReader:
                                         print textContent
 
 if __name__ == "__main__":
-#     ODSReader("test.ods")
-    ODSReader("SKU_Matrix_RHEL_POWER.ods")
-# improvement
-# 1, can not read blanks at the begin or end of cells
+    ODSReader("test.ods")
