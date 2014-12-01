@@ -162,6 +162,59 @@ class RHSMBase(unittest.TestCase):
         currentversion = version + platform
         return currentversion
 
+    def sub_listavailpools(self, productid):
+        cmd = "subscription-manager list --available"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            if "no available subscription pools to list" not in output.lower():
+                if productid in output:
+                    logger.info("The right available pools are listed successfully.")
+                    pool_list = self.__parse_listavailable_output(output)
+                    return pool_list
+                else:
+                    raise FailException("Not the right available pools are listed!")
+            else:
+                logger.info("There is no Available subscription pools to list!")
+                return None
+        else:
+            raise FailException("Test Failed - Failed to list available pools.")
+
+    def __parse_listavailable_output(self, output):
+        datalines = output.splitlines()
+        data_list = []
+        # split output into segmentations for each pool
+        data_segs = []
+        segs = []
+        tmpline = ""
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+                tmpline = line
+            elif line and ":" not in line:
+                tmpline = tmpline + ' ' + line.strip()
+            elif line and ":" in line:
+                segs.append(tmpline)
+                tmpline = line
+            if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line) or ("SystemType:" in line):
+                segs.append(tmpline)
+                data_segs.append(segs)
+                segs = []
+        for seg in data_segs:
+            data_dict = {}
+            for item in seg:
+                keyitem = item.split(":")[0].replace(' ', '')
+                valueitem = item.split(":")[1].strip()
+                data_dict[keyitem] = valueitem
+            data_list.append(data_dict)
+        return data_list
+
+    def get_subscription_serialnumlist(self):
+        cmd = "ls /etc/pki/entitlement/ | grep -v key.pem"
+        (ret, output) = self.runcmd(cmd, "list all certificates in /etc/pki/entitlement/")
+        ent_certs = output.splitlines()
+        serialnumlist = [line.replace('.pem', '') for line in ent_certs]
+        return serialnumlist
+
+
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
 #                     vm.copy_files_to(sourcepath, targetpath)
@@ -486,16 +539,7 @@ class RHSMBase(unittest.TestCase):
 #             else:
 #                     logger.info("The subscription of the product is not consumed.")
 #                     return False
-# 
 
-#     def get_subscription_serialnumlist(self):
-#             cmd = "ls /etc/pki/entitlement/ | grep -v key.pem"
-#             (ret, output) = self.runcmd(cmd, "list all certificates in /etc/pki/entitlement/")
-# 
-#             ent_certs = output.splitlines()
-#             serialnumlist = [line.replace('.pem', '') for line in ent_certs]
-# 
-#             return serialnumlist
 # 
 #     def sub_checkidcert(self):
 #             cmd = "ls /etc/pki/consumer/"
