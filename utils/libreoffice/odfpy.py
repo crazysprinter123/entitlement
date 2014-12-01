@@ -30,6 +30,7 @@ class ODSReader:
                     if(not repeat):
                         repeat = 1
                     ps = cell.getElementsByType(P)
+#                     if len(ps) == 0 and not cell is cells[-1]:  # waive row ending blank cells
                     if len(ps) == 0:
                         for rr in range(int(repeat)):  # repeated blank cells
                             print "blank"
