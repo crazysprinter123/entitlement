@@ -30,10 +30,11 @@ class ODSReader:
                     if(not repeat):
                         repeat = 1
                     ps = cell.getElementsByType(P)
-#                     if len(ps) == 0 and not cell is cells[-1]:  # waive row ending blank cells
-                    if len(ps) == 0:
-                        for rr in range(int(repeat)):  # repeated blank cells
-                            print "blank"
+                    if len(ps) == 0 and not cell is cells[-1]:  # waive row ending blank cells
+                    # if len(ps) == 0:
+                        if not repeat > 10:
+                            for rr in range(int(repeat)):  # repeated blank cells
+                                print "blank"
                     else:
                         for p in ps:
                             for n in p.childNodes:
@@ -47,4 +48,5 @@ class ODSReader:
                                         print textContent
 
 if __name__ == "__main__":
-    ODSReader("test.ods")
+#     ODSReader("test1.ods")
+    ODSReader("SKU_Matrix_RHEL_POWER.ods")
