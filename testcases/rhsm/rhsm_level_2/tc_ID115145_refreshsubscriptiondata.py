@@ -13,20 +13,20 @@ class tc_ID115145_refreshsubscriptiondata(RHSMBase):
             self.sub_register(username, password)
             autosubprod = RHSMConstants().get_constant("autosubprod")
             self.sub_autosubscribe(autosubprod)
-            #get serialnumlist before remove local subscription data
+            # get serialnumlist before remove local subscription data
             serialnumlist_pre = self.get_subscription_serialnumlist()
-            #rm the subscription data
-            cmd="rm -f /etc/pki/entitlement/*"
-            (ret,output)=self.runcmd(cmd,"remove local entitlement cert")
+            # rm the subscription data
+            cmd = "rm -f /etc/pki/entitlement/*"
+            (ret, output) = self.runcmd(cmd, "remove local entitlement cert")
             if ret == 0:
                 logger.info("It's successful to remove all local subscription data.")
             else:
                 raise FailException("Test Failed - It's failed to remove all local subscription data.")
-            #refresh subscription data from candlepin server
-            cmd="subscription-manager refresh"
-            (ret,output)=self.runcmd(cmd,"refresh subscriptions data")
+            # refresh subscription data from candlepin server
+            cmd = "subscription-manager refresh"
+            (ret, output) = self.runcmd(cmd, "refresh subscriptions data")
             if ret == 0 and "All local data refreshed" in output:
-                #get serialnumlist after refresh subscription data from server
+                # get serialnumlist after refresh subscription data from server
                 serialnumlist_post = self.get_subscription_serialnumlist()
                 if len(serialnumlist_post) == len(serialnumlist_pre) and serialnumlist_post.sort() == serialnumlist_pre.sort():
                     logger.info("It's successful to refresh all subscription data from server.")

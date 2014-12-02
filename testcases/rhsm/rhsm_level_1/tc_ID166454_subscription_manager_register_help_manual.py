@@ -8,8 +8,8 @@ class tc_ID166454_subscription_manager_register_help_manual(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            cmd='subscription-manager --help'
-            (ret,output)=self.runcmd(cmd,"list subscription-manager help manual!")
+            cmd = 'subscription-manager --help'
+            (ret, output) = self.runcmd(cmd, "list subscription-manager help manual!")
             if ret == 0 and ('Primary Modules' and 'Other Modules' in output):
                 logger.info("Test Successful - It's successful to list subscription-manager help manual.") 
             else:

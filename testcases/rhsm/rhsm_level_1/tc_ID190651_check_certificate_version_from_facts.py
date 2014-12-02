@@ -8,9 +8,9 @@ class tc_ID190651_check_certificate_version_from_facts(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #check the certificate version from facts
-            cmd="subscription-manager facts | grep system.certificate_version"
-            (ret,output)=self.runcmd(cmd,"check the certificate version from facts")
+            # check the certificate version from facts
+            cmd = "subscription-manager facts | grep system.certificate_version"
+            (ret, output) = self.runcmd(cmd, "check the certificate version from facts")
             if ret == 0 and "system.certificate_version: 3" in output:
                 logger.info("It's successful to check the certificate version from facts.")    
             else:

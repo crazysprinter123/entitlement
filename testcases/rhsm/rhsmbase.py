@@ -140,22 +140,22 @@ class RHSMBase(unittest.TestCase):
             raise FailException("Test Failed - Failed to unsubscribe.")
 
     def sub_getcurrentversion(self):
-        version=None
-        platform=None
-        currentversion=None
+        version = None
+        platform = None
+        currentversion = None
         # get version
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
         (ret, output) = Command().run(cmd, comments=False)
         if ret == 0:
-            version=output.strip("\n").strip(" ")
+            version = output.strip("\n").strip(" ")
             logger.info("It's successful to get system version.")
         else:
             logger.info("It's failed to get system version.")
-        #get paltform
-        cmd="lsb_release -i"
+        # get paltform
+        cmd = "lsb_release -i"
         (ret, output) = Command().run(cmd, comments=False)
         if ret == 0:
-            platform=output.split("Enterprise")[1].strip(" ")
+            platform = output.split("Enterprise")[1].strip(" ")
             logger.info("It's successful to get system platform")
         else:
             logger.info("It's failed to get system platform.")
@@ -213,6 +213,24 @@ class RHSMBase(unittest.TestCase):
         ent_certs = output.splitlines()
         serialnumlist = [line.replace('.pem', '') for line in ent_certs]
         return serialnumlist
+
+    def sub_checkentitlementcerts(self, productid):
+        rctcommand = self.check_rct()
+        if rctcommand == True:
+            cmd = "for i in $(ls /etc/pki/entitlement/ | grep -v key.pem); do rct cat-cert /etc/pki/entitlement/$i; done | grep %s" % (productid)
+        else:
+            cmd = "for i in $(ls /etc/pki/entitlement/ | grep -v key.pem); do openssl x509 -text -noout -in /etc/pki/entitlement/$i; done | grep %s" % (productid)
+        (ret, output) = self.runcmd(cmd, "check entitlement certs")
+        if ret == 0:
+            if productid in output:
+                logger.info("It's successful to check entitlement certificates.")
+            else:
+                raise FailException("Test Failed - The information shown entitlement certificates is not correct.")
+        else:
+            raise FailException("Test Failed - Failed to check entitlement certificates.")
+
+
+
 
 
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
@@ -489,22 +507,7 @@ class RHSMBase(unittest.TestCase):
 #                     raise FailException("Test Failed - Failed to subscribe.")
 # 
 
-#     def sub_checkentitlementcerts(self, productid):
-#             rctcommand = self.check_rct()
-#             if rctcommand == 0:
-#                     cmd = "for i in $(ls /etc/pki/entitlement/ | grep -v key.pem); do rct cat-cert /etc/pki/entitlement/$i; done | grep %s" % (productid)
-#             else:
-#                     cmd = "for i in $(ls /etc/pki/entitlement/ | grep -v key.pem); do openssl x509 -text -noout -in /etc/pki/entitlement/$i; done | grep %s" % (productid)
-#             (ret, output) = self.runcmd(cmd, "check entitlement certs")
-# 
-#             if ret == 0:
-#                     if productid in output:
-#                             logger.info("It's successful to check entitlement certificates.")
-#                     else:
-#                             raise FailException("Test Failed - The information shown entitlement certificates is not correct.")
-#             else:
-#                     raise FailException("Test Failed - Failed to check entitlement certificates.")
-# 
+
 
 # 
 

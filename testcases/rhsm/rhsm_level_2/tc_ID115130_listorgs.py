@@ -8,11 +8,11 @@ class tc_ID115130_listorgs(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #list orgs of a consumer.
+            # list orgs of a consumer.
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
-            cmd="subscription-manager orgs --username=%s --password=%s"%(username,password)
-            (ret,output)=self.runcmd(cmd,"list orgs")
+            cmd = "subscription-manager orgs --username=%s --password=%s" % (username, password)
+            (ret, output) = self.runcmd(cmd, "list orgs")
             if ret == 0 and "OrgName" in output and "OrgKey" in output:
                 logging.info("It's successful to list orgs info.")
             elif ret == 0 and "Name" in output and "Key" in output:

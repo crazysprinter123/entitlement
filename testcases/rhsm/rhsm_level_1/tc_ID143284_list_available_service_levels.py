@@ -7,16 +7,16 @@ class tc_ID143284_list_available_service_levels(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        #register to server
-        username=RHSMConstants().get_constant("username")
-        password=RHSMConstants().get_constant("password")
-        self.sub_register(username,password)
+        # register to server
+        username = RHSMConstants().get_constant("username")
+        password = RHSMConstants().get_constant("password")
+        self.sub_register(username, password)
 
         try:
-            #list available service levels
+            # list available service levels
             service_level = RHSMConstants().get_constant("servicelevel")
-            cmd="subscription-manager service-level --list"
-            (ret,output)=self.runcmd(cmd,"list available service levels")
+            cmd = "subscription-manager service-level --list"
+            (ret, output) = self.runcmd(cmd, "list available service levels")
             if (ret == 0) and ("service_level" in output or "Service Levels" in output):
                 logger.info("It's successful to list available service levels.")
             else:
