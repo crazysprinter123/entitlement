@@ -1,99 +1,88 @@
-import sys, os, subprocess, commands, random, re
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID115181_install_one_package(test, params, env):
+class tc_ID115181_install_one_package(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
+            autosubprod = RHSMConstants().get_constant("autosubprod")
+            self.sub_autosubscribe(autosubprod)
+            # get variables form ent_env
+            repoid = RHSMConstants().get_constant("productrepo")
+            pid = RHSMConstants().get_constant("pid")
+            pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
+            # check repo exist
+            if self.is_enabled_repo(repoid):
+                # check package to be installed exist
+                self.check_givenpkg_avail(repoid, pkgtoinstall)
+                # install test-pkg
+                self.install_givenpkg(pkgtoinstall)
+            else:
+                raise FailException("Test Failed - The product repoid is not exist.")
+            # check the cert file exist.
+            certfile = pid + ".pem"
+            self.check_cert_file(certfile)
+            # check productid cert
+            self.sub_checkproductcert(pid)
+            # uninstall test-pkg
+            self.uninstall_givenpkg(pkgtoinstall)
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-	session, vm = eu().init_session_vm(params, env)
-	logging.info("=========== Begin of Running Test Case: %s ===========" % __name__)
+    def is_enabled_repo(self, repoid):
+        cmd = "yum repolist"
+        (ret, output) = self.runcmd(cmd, "list enabled repos")
+        if ret == 0 and "repolist:(\s+)0" in output:
+            raise FailException("Test Failed - There is not enabled repo to list.")
+        else:
+            logger.info("It's successful to list enabled repos.")
+        if repoid in output:
+            return True
+        else:
+            return False
 
-	try:   
-		#register to server
-		username = ee().get_env(params)["username"]
-		password = ee().get_env(params)["password"]
-		eu().sub_register(session, username, password)
-		
-		#auto subscribe
-		autosubprod = ee().get_env(params)["autosubprod"]
-		eu().sub_autosubscribe(session, autosubprod)
-		
-		#get variables form ent_env
-		repoid = ee().get_env(params)["productrepo"]
-		pid = ee().get_env(params)["pid"]
-		pkgtoinstall = ee().get_env(params)["pkgtoinstall"]
-		
-		#check repo exist
-		if is_enabled_repo(session, repoid):
-			#check package to be installed exist
-			check_givenpkg_avail(session, repoid, pkgtoinstall)
-			#install test-pkg
-			install_givenpkg(session, pkgtoinstall)
-		else:
-			raise error.TestFail("Test Failed - The product repoid is not exist.")
-		
-		#check the cert file exist.
-		certfile = pid + ".pem"
-		check_cert_file(session, certfile)
-		
-		#check productid cert
-		eu().sub_checkproductcert(session, pid)
+    def check_givenpkg_avail(self, repoid, testpkg):
+        cmd = "repoquery -a --repoid=%s | grep %s" % (repoid, testpkg)
+        (ret, output) = self.runcmd(cmd, "check package available")
+        if ret == 0 and testpkg in output:
+            logger.info("The package %s exists." % (testpkg))
+        else:
+            raise FailException("Test Failed - The package %s does not exist." % (testpkg))
 
-		#uninstall test-pkg
-		uninstall_givenpkg(session, pkgtoinstall)
+    def install_givenpkg(self, testpkg):
+        cmd = "yum install -y %s" % (testpkg)
+        (ret, output) = self.runcmd(cmd, "install selected package %s" % testpkg)
+        if ret == 0 and "Complete!" in output and "Error" not in output:
+            logger.info("The package %s is installed successfully." % (testpkg))
+        else:
+            raise FailException("Test Failed - The package %s is failed to install." % (testpkg))
 
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when doing install one package of subscribed product:" + str(e))
-	finally:
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ===========" % __name__)
+    def uninstall_givenpkg(self, testpkg):
+        cmd = "yum remove -y %s" % (testpkg)
+        (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg)
+        if ret == 0 and "Complete!" in output and "Removed" in output:
+            logger.info("The package %s is uninstalled successfully." % (testpkg))
+        else:
+            raise FailException("Test Failed - The package %s is failed to uninstall." % (testpkg))
 
+    def check_cert_file(self, certfile):
+        cmd = "ls -l /etc/pki/product/%s" % certfile
+        (ret, output) = self.runcmd(cmd, "check the product cert file exists")
+        if ret == 0 :
+            logger.info("It's successful to check product cert file exists.")            
+        else:
+            raise FailException("Test Failed - it's failed to check product cert file exists.")
 
-def is_enabled_repo(session, repoid):
-	cmd = "yum repolist"
-	(ret, output) = eu().runcmd(session, cmd, "list enabled repos", timeout=20000)
-	if ret == 0 and "repolist:(\s+)0" in output:
-		raise error.TestFail("Test Failed - There is not enabled repo to list.")
-	else:
-		logging.info("It's successful to list enabled repos.")
-	if repoid in output:
-		return True
-	else:
-		return False
-
-def check_givenpkg_avail(session, repoid, testpkg):
-	cmd = "repoquery -a --repoid=%s | grep %s" % (repoid, testpkg)
-	(ret, output) = eu().runcmd(session, cmd, "check package available", timeout=20000)
-	if ret == 0 and testpkg in output:
-		logging.info("The package %s exists." % (testpkg))
-	else : 
-		raise error.TestFail("Test Failed - The package %s does not exist." % (testpkg))
-
-def install_givenpkg(session, testpkg):
-	cmd = "yum install -y %s" % (testpkg)
-	(ret, output) = eu().runcmd(session, cmd, "install selected package %s" % testpkg, timeout=20000)
-	if ret == 0 and "Complete!" in output and "Error" not in output:
-		logging.info("The package %s is installed successfully." % (testpkg))
-	else: 
-		raise error.TestFail("Test Failed - The package %s is failed to install." % (testpkg))
-
-def uninstall_givenpkg(session, testpkg):
-	cmd = "yum remove -y %s" % (testpkg)
-	(ret, output) = eu().runcmd(session, cmd, "remove select package %s" % testpkg, timeout=20000)
-
-	if ret == 0 and "Complete!" in output and "Removed" in output:
-		logging.info("The package %s is uninstalled successfully." % (testpkg))
-	else: 
-		raise error.TestFail("Test Failed - The package %s is failed to uninstall." % (testpkg))
-	
-def check_cert_file(session, certfile):
-	cmd = "ls -l /etc/pki/product/%s" %certfile
-	(ret, output) = eu().runcmd(session, cmd, "check the product cert file exists")
-	if ret == 0 :   
-		logging.info("It's successful to check product cert file exists.")            
-	else:
-		raise error.TestFail("Test Failed - it's failed to check product cert file exists.")
+if __name__ == "__main__":
+    unittest.main()
