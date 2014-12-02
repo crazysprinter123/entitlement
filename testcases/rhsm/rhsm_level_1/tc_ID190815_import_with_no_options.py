@@ -8,10 +8,10 @@ class tc_ID190815_import_with_no_options(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #register to server
-            username=RHSMConstants().get_constant("username")
-            password=RHSMConstants().get_constant("password")
-            self.sub_register(username,password)
+            # register to server
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
             cmd = "subscription-manager import"
             (ret, output) = self.runcmd(cmd, "running import command with no options")
             if ret != 0 and "Error: This command requires that you specify a certificate with --certificate" in output :

@@ -8,12 +8,12 @@ class tc_ID190594_run_identity_when_regitered(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #register the system
-            username=RHSMConstants().get_constant("username")
-            password=RHSMConstants().get_constant("password")
-            self.sub_register(username,password)
-            cmd='subscription-manager identity'
-            (ret,output)=self.runcmd(cmd,"running identity command")
+            # register the system
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
+            cmd = 'subscription-manager identity'
+            (ret, output) = self.runcmd(cmd, "running identity command")
             if ret == 0 and (('system identity' in output) and ('name' in output) and ('org name' in output) and ('org id' in output or 'org ID' in output)):
                 logger.info("It's successful to check the output of identity command when the machine is registered.") 
             else:

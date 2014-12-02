@@ -8,13 +8,13 @@ class tc_ID126353_listfactsinfo(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username=RHSMConstants().get_constant("username")
-            password=RHSMConstants().get_constant("password")
-            self.sub_register(username,password)
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
 
-            cmd="subscription-manager facts --list"
-            (ret,output)=self.runcmd(cmd,"list facts")
-            if ret==0 and "system.certificate_version" in output and "virt.is_guest" in output and "virt.host_type" in output:
+            cmd = "subscription-manager facts --list"
+            (ret, output) = self.runcmd(cmd, "list facts")
+            if ret == 0 and "system.certificate_version" in output and "virt.is_guest" in output and "virt.host_type" in output:
                 logger.info("It's successful to list facts")
                 if "system.certificate_version: 3." in output:
                     logger.info("It's successful to check cert v3")
@@ -32,7 +32,7 @@ class tc_ID126353_listfactsinfo(RHSMBase):
             self.assert_(False, case_name)
         finally:
             self.restore_environment()
-            logger.info("=========== End of Running Test Case: %s ==========="%__name__)
+            logger.info("=========== End of Running Test Case: %s ===========" % __name__)
 
 if __name__ == "__main__":
     unittest.main()

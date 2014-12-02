@@ -13,10 +13,10 @@ class tc_ID115140_listproductsandsubscriptions(RHSMBase):
             self.sub_register(username, password)
             autosubprod = RHSMConstants().get_constant("autosubprod")
             self.sub_autosubscribe(autosubprod)
-            #list installed products
+            # list installed products
             installedproductname = RHSMConstants().get_constant("installedproductname")
             self.list_installed_products(installedproductname)
-            #list consumed subscriptions
+            # list consumed subscriptions
             self.list_consumed_subscriptions(installedproductname)
             self.assert_(True, case_name)
         except Exception, e:
@@ -28,28 +28,28 @@ class tc_ID115140_listproductsandsubscriptions(RHSMBase):
 
     def list_installed_products(self, expectedproductname):
         if "," in expectedproductname:
-            productnamelist =  expectedproductname.split(",")
+            productnamelist = expectedproductname.split(",")
         else:
             productnamelist = [expectedproductname]
-        cmd="subscription-manager list --installed"
-        (ret,output)=self.runcmd(cmd,"list installed products")
-        #This line for rhel6.4 new output version
+        cmd = "subscription-manager list --installed"
+        (ret, output) = self.runcmd(cmd, "list installed products")
+        # This line for rhel6.4 new output version
         output_join = " ".join(x.strip() for x in output.split())
         if ret == 0:
             for productname in productnamelist:
                 if (productname in output or productname in output_join):
-                    logging.info("It's successful to list installed product %s."%(productname))
+                    logging.info("It's successful to list installed product %s." % (productname))
                     return True
                 else:
-                    raise FailException("Test Failed - The product %s is not installed." %(productname))
+                    raise FailException("Test Failed - The product %s is not installed." % (productname))
                     return False
         else:
             raise FailException("Test Failed - Failed to list installled products.")
             return False
 
     def list_consumed_subscriptions(self, installedproductname):
-        cmd="subscription-manager list --consumed"
-        (ret,output)=self.runcmd(cmd,"list consumed subscriptions")
+        cmd = "subscription-manager list --consumed"
+        (ret, output) = self.runcmd(cmd, "list consumed subscriptions")
         output_join = " ".join(x.strip() for x in output.split())
         if ret == 0 and ((installedproductname in output) or (installedproductname in output_join)):
             logging.info("It's successful to list all consumed subscriptions.")

@@ -8,28 +8,28 @@ class tc_ID189602_clear_current_servicelevel(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #register to server
-            username=RHSMConstants().get_constant("username")
-            password=RHSMConstants().get_constant("password")
-            self.sub_register(username,password)
-            #get service_level
+            # register to server
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
+            # get service_level
             service_level = RHSMConstants().get_constant("servicelevel")
-            #(1)Test 1: with --set=\"\" option
-            #set service-level as precondition
+            # (1)Test 1: with --set=\"\" option
+            # set service-level as precondition
             self.sub_set_servicelevel(service_level)
-            #clear current service level by subscription-manager service-level --set=""
-            cmd="subscription-manager service-level --set=\"\""
-            (ret,output)=self.runcmd(cmd,"clear current service level with --set=\"\" option")
+            # clear current service level by subscription-manager service-level --set=""
+            cmd = "subscription-manager service-level --set=\"\""
+            (ret, output) = self.runcmd(cmd, "clear current service level with --set=\"\" option")
             if ret == 0 and "Service level preference has been unset" in output:	  
                 logger.info("It's successful to clear current service level with --set=\"\" option.")	
             else:
                 raise FailException("Test Failed - Failed to clear current service level with --set=\"\" option.")
-            #(2)Test 2: with --unset option	
-            #set service-level as precondition
+            # (2)Test 2: with --unset option	
+            # set service-level as precondition
             self.sub_set_servicelevel(service_level)
-            #clear current service level by subscription-manager service-level --unset
-            cmd="subscription-manager service-level --unset"
-            (ret,output)=self.runcmd(cmd,"clear current service level with --unset option")
+            # clear current service level by subscription-manager service-level --unset
+            cmd = "subscription-manager service-level --unset"
+            (ret, output) = self.runcmd(cmd, "clear current service level with --unset option")
             if ret == 0 and "Service level preference has been unset" in output:	  
                 logging.info("It's successful to clear current service level with --unset option.")	
             else:

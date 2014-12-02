@@ -8,12 +8,12 @@ class tc_ID115138_listavailentitlementpools(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #register to server
+            # register to server
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             self.sub_register(username, password)
-            #list available entitlement pools
-            productid=RHSMConstants().get_constant("productid")
+            # list available entitlement pools
+            productid = RHSMConstants().get_constant("productid")
             availpoollist = self.sub_listavailpools(productid)
             self.assert_(True, case_name)
         except Exception, e:

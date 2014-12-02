@@ -7,19 +7,19 @@ class tc_ID154591_list_available_releases(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        #register to server
-        username=RHSMConstants().get_constant("username")
-        password=RHSMConstants().get_constant("password")
-        self.sub_register(username,password)
+        # register to server
+        username = RHSMConstants().get_constant("username")
+        password = RHSMConstants().get_constant("password")
+        self.sub_register(username, password)
 
         try:
-            #auto subscribe to a pool
-            autosubprod=RHSMConstants().get_constant("autosubprod")
+            # auto subscribe to a pool
+            autosubprod = RHSMConstants().get_constant("autosubprod")
             self.sub_autosubscribe(autosubprod)
-            #list available releases
-            currentversion=self.sub_getcurrentversion()
-            cmd="subscription-manager release --list"
-            (ret,output)=self.runcmd(cmd,"list available releases")
+            # list available releases
+            currentversion = self.sub_getcurrentversion()
+            cmd = "subscription-manager release --list"
+            (ret, output) = self.runcmd(cmd, "list available releases")
             if ret == 0 and currentversion in output:
                 logger.info("It's successful to list available releases.")
             else:
