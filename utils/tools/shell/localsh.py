@@ -26,7 +26,7 @@ class LocalSH(object):
         """
         Executes SSH command on local machine.
         """
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         # if timeout is not set wait for process to complete
         if timeout == None:
             retcode = process.wait()
@@ -43,8 +43,8 @@ class LocalSH(object):
                     stdout = "Command terminated due to timeout ..."
                     return retcode, stdout
             retcode = process.wait()
-            stdout, stderr = process.communicate()
-        return retcode, stdout + stderr
+            stdout = process.communicate()
+        return retcode, stdout
 
     @classmethod
     def run_pexpect(self, cmd, password=""):
