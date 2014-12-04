@@ -21,7 +21,7 @@ class tc_ID189592_enable_repo(RHSMBase):
                 # enable the repo in list
                 cmd = "subscription-manager repos --enable=%s" % productrepo
                 (ret, output) = self.runcmd(cmd, "enable the repo %s" % productrepo)
-                if ret == 0 and "Repo '%s' is enabled for this system." % productrepo in output:
+                if ret == 0 and "Repository '%s' is enabled for this system." % productrepo in output:
                     logger.info("It's successful to disable the repo %s." % productrepo)
                 else: 
                     raise FailException("Test Failed - Failed to enable the repo %s." % productrepo)
