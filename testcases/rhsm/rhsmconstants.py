@@ -16,7 +16,7 @@ class RHSMConstants(object):
             "pkgtoinstall": "zsh",
             "productrepo": "rhel-6-server-rpms",
             "betarepo": "rhel-6-server-beta-rpms",
-            "servicelevel": "STANDARD",
+            "servicelevel": "Premium",
             "releaselist": "6.1,6.2,6.3,6.4,6.5,6.6,6Server",
             }
     sam_cons7 = {
@@ -30,7 +30,7 @@ class RHSMConstants(object):
             "pkgtoinstall": "zsh",
             "productrepo": "rhel-7-server-rpms",
             "betarepo": "rhel-7-server-beta-rpms",
-            "servicelevel": "STANDARD",
+            "servicelevel": "Premium",
             "releaselist": "7.0,7Server",
             }
     stage_cons = {
