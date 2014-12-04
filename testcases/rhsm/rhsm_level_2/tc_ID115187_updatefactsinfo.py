@@ -1,81 +1,77 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
+import random
 
-def run_tc_ID115187_updatefactsinfo(test, params, env):
+class tc_ID115187_updatefactsinfo(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
+            org_cpusocket = self.get_current_facts_info()
+            selectlist = ['1', '2', '3', '4', '5', '6', '7', '8']
+            if org_cpusocket in selectlist:
+                selectlist.remove(org_cpusocket)
+                modified_cpusockets = random.sample(selectlist, 1)[0]
+            # update facts info of the system
+            self.update_current_facts_info(org_cpusocket, modified_cpusockets)
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
+    def get_current_facts_info(self):
+        cmd = "cat /var/lib/rhsm/facts/facts.json |sed -e 's/[{}]/''/g' | awk -v k=\"text\" '{n=split($0,a,\",\"); for (i=1; i<=n; i++) print a[i]}'|grep '\"cpu.cpu_socket(s)\"'|tr -cd 0-9 && echo"
+        (ret, output) = self.runcmd(cmd, "get current facts")	
+        logger.info("current cpu_socket facts of the system: %s" % output)
+        if ret == 0:
+            return output[-2]
+        else:
+            raise FailException("Test Failed - Failed to get current facts of cpu_socket.")
 
-        #register to server
-	username=ee().get_env(params)["username"]
-	password=ee().get_env(params)["password"]
-	eu().sub_register(session,username,password)
-
-	try:
-		#[A] - prepare test env
-		#list current facts info of the system
-		org_cpusocket = get_current_facts_info(session)
-		selectlist = ['1', '2', '3', '4', '5', '6', '7', '8']
-		if org_cpusocket in selectlist:
-			selectlist.remove(org_cpusocket)
-		modified_cpusockets = random.sample(selectlist, 1)[0]
-
-		#[B] - run the test
-		#update facts info of the system
-		update_current_facts_info(session,org_cpusocket,modified_cpusockets)
-
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when do update the system facts:"+str(e))
-	finally:
-		eu().runcmd(session,'rm -f /etc/rhsm/facts/custom.facts', "")
-		eu().runcmd(session,'subscription-manager facts --update', "")
-
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
-
-def get_current_facts_info(session):
-	if session != None:
-		cmd="cat /var/lib/rhsm/facts/facts.json |sed -e 's/[{}]/''/g' | awk -v k=\"text\" '{n=split($0,a,\",\"); for (i=1; i<=n; i++) print a[i]}'|grep '\"cpu.cpu_socket(s)\"'|tr -cd 0-9 && echo"
-		(ret,output)=eu().runcmd(session,cmd,"get current facts")	
-		logging.info("current cpu_socket facts of the system: %s"%output)
-		if ret == 0: 
-			 return output[-2]
-		else: raise error.TestFail("Test Failed - Failed to get current facts of cpu_socket.")
-	else:
-		cmd="cat /var/lib/rhsm/facts/facts.json |sed -e 's/[{}]/''/g' | awk -v k=\"text\" '{n=split($0,a,\",\"); for (i=1; i<=n; i++) print a[i]}'|grep '\"cpu.cpu_socket(s)\"'|tr -cd 0-9"
-		(ret,output)=eu().runcmd(session,cmd,"get current facts")
-		logging.info("current cpu_socket facts of the system: %s"%output)
-		if ret == 0: 
-			 return output
-		else: raise error.TestFail("Test Failed - Failed to get current facts of cpu_socket.")
-
-def update_current_facts_info(session,org_cpusocket, modified_cpusockets):
-
-	#generate custom facts
-        cmd="""echo '{"cpu.cpu_socket(s)":%s}' > /etc/rhsm/facts/custom.facts""" %modified_cpusockets
-        (ret,output)=eu().runcmd(session,cmd,"generate custom facts")
-
-	#update facts of cpu.cpu_sockets
-        cmd="subscription-manager facts --update"
-        (ret,output)=eu().runcmd(session,cmd,"update custom facts")
-
+    def update_current_facts_info(self, org_cpusocket, modified_cpusockets):
+        # generate custom facts
+        cmd = """echo '{"cpu.cpu_socket(s)":%s}' > /etc/rhsm/facts/custom.facts""" % modified_cpusockets
+        (ret, output) = self.runcmd(cmd, "generate custom facts")
+        # update facts of cpu.cpu_sockets
+        cmd = "subscription-manager facts --update"
+        (ret, output) = self.runcmd(cmd, "update custom facts")
         if ret == 0 and "Successfully updated the system facts" in output:
-        	if is_current_facts_updated(session,org_cpusocket, modified_cpusockets):
-                	logging.info("It's successful to update the system facts.")
-		else:
-                	raise error.TestFail("Test Failed - Failed to update the system facts.")
-	else:
-		raise error.TestFail("Test Failed - Failed to update the system facts.")
+            if self.is_current_facts_updated(org_cpusocket, modified_cpusockets):
+                logger.info("It's successful to update the system facts.")
+            else:
+                raise FailException("Test Failed - Failed to update the system facts.")
+        else:
+            raise FailException("Test Failed - Failed to update the system facts.")
 
-def is_current_facts_updated(session,orgvalue, modifiedvalue):
-	flag = False
-	currentvalue = get_current_facts_info(session)
-	if currentvalue == modifiedvalue and currentvalue !=orgvalue:
-		flag = True
-	return flag
+    def is_current_facts_updated(self, orgvalue, modifiedvalue):
+        flag = False
+        currentvalue = self.get_current_facts_info()
+        if currentvalue == modifiedvalue and currentvalue != orgvalue:
+            flag = True
+        return flag
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

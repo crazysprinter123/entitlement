@@ -1,54 +1,47 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID143288_dryrun_bind_with_specified_SLA(test, params, env):
+class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
+            # get baseurl
+            baseurl = RHSMConstants().get_constant("baseurl")
+            if "8443" in baseurl:
+                baseurl = baseurl + "/candlepin"
+            elif RHSMConstants().samhostip == None:
+                baseurl = baseurl + "/subscription"
+            else:
+                baseurl = baseurl + "/sam/api"
+            # get consumerid
+            cmd = "subscription-manager identity | grep identity"
+            (ret, output) = self.runcmd(cmd, "get consumerid")
+            consumerid = output.split(':')[1].strip()
+            service_level = RHSMConstants().get_constant("servicelevel")
+            # call dry run bind to products by api
+            cmd = "curl -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s/entitlements/dry-run?service_level=%s && echo \"\r\"" % (baseurl, consumerid, service_level)
+            (ret, output) = self.runcmd(cmd, "dry run bind by products api")
+            if ret == 0 and ('"value":"%s"' % service_level in output or '"value":"%s"' % (((service_level).lower()).upper()) in output):
+                logger.info("It's successful to dry run bind by products api with a specified SLA.")
+            else:
+                raise FailException("Test Failed - Failed to dry run bind by products api with a specified SLA.")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
+if __name__ == "__main__":
+    unittest.main()
 
-        #register to server
-	username=ee().get_env(params)["username"]
-	password=ee().get_env(params)["password"]
-	eu().sub_register(session,username,password)
-	
-	try:
-		#[A] - prepare test env
-		#get baseurl
-		if "8443" in params.get("baseurl"):
-			baseurl=params.get("baseurl")+"/candlepin"
-		elif params.get("samhostip") == None:
-			baseurl="https://"+params.get("hostname")+"/subscription"
-		else:
-			baseurl="https://"+params.get("samhostname")+"/sam/api"
 
-		#get consumerid
-		cmd="subscription-manager identity | grep identity"
-		(ret,output)=eu().runcmd(session,cmd,"get consumerid")
-                consumerid = output.split(':')[1].strip()
-
-		service_level = ee().get_env(params)["servicelevel"]
-		
-		#[B] - run the test		
-		#call dry run bind to products by api
-                cmd="curl -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s/entitlements/dry-run?service_level=%s && echo \"\r\"" %(baseurl, consumerid, service_level)
-                (ret,output)=eu().runcmd(session,cmd,"dry run bind by products api")
-                
-                if ret == 0 and ('"value":"%s"'%service_level in output or '"value":"%s"'%(((service_level).lower()).capitalize()) in output):
-			logging.info("It's successful to dry run bind by products api with a specified SLA.")
-                else:
-                        raise error.TestFail("Test Failed - Failed to dry run bind by products api with a specified SLA.")
-
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when do dry run bind by products api with a specified SLA:"+str(e))
-
-	finally:
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
 
 
