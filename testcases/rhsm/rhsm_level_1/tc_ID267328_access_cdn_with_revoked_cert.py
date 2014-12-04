@@ -19,7 +19,7 @@ class tc_ID267328_access_cdn_with_revoked_cert(RHSMBase):
             # install a pkg
             cmd = "yum install -y %s" % (pkgtoinstall)
             (ret, output) = self.runcmd(cmd, "install selected package %s" % pkgtoinstall)
-            if ret == 1 and "No package %s available." % pkgtoinstall in output:
+            if ret == 1:
                 logger.info("It's successful to verify that system cannot access CDN contents through thumbslug with revoked cert")
             else:
                 raise FailException("Test Failed - failed to verify that system cannot access CDN contents through thumbslug with revoked cert")

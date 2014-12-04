@@ -19,7 +19,7 @@ class tc_ID267324_access_cdn_without_entitlement_cert(RHSMBase):
             # install a pkg
             cmd = "yum install -y %s" % (pkgtoinstall)
             (ret, output) = self.runcmd(cmd, "install selected package %s" % pkgtoinstall)
-            if ret == 1 and "No package %s available." % pkgtoinstall in output:
+            if ret == 1:
                 logging.info("It's successful to verify that system without entitlement certificates cannot access CDN  contents through thumbslug")
             else:
                 raise FailException("Test Failed - failed to verify that system without entitlement certificates cannot access CDN  contents through thumbslug")

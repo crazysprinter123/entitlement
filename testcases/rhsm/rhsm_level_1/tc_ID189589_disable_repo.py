@@ -22,7 +22,7 @@ class tc_ID189589_disable_repo(RHSMBase):
                 # disable the repo in list
                 cmd = "subscription-manager repos --disable=%s" % productrepo
                 (ret, output) = self.runcmd(cmd, "disable the repo %s" % productrepo)
-                if ret == 0 and "Repo '%s' is disabled for this system." % productrepo in output:
+                if ret == 0 and "Repository '%s' is disabled for this system." % productrepo in output:
                     logger.info("It's successful to disable the repo %s." % productrepo)
                 else:
                     raise FailException("Test Failed - Failed to disable the repo %s." % productrepo)

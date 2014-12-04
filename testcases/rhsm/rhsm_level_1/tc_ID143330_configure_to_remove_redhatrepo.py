@@ -64,7 +64,7 @@ class tc_ID143330_configure_to_remove_redhatrepo(RHSMBase):
         # restart rhsmcertd service and wait for one minute
         cmd = "service rhsmcertd restart"
         (ret, output) = self.runcmd(cmd, "restart rhsmcertd service")
-        if output.count("OK") == 2 :
+        if output.count("OK") == 2 or "Redirecting to /bin/systemctl restart  rhsmcertd.service" in output:
             logger.info("It's successful to restart rhsmcertd service.")
             logger.info("Waiting 240 seconds for rhsmcertd service to take effect...")
             time.sleep(240)

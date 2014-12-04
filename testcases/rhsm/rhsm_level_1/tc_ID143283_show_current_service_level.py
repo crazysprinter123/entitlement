@@ -35,4 +35,4 @@ class tc_ID143283_show_current_service_level(RHSMBase):
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
 if __name__ == "__main__":
-    unittest.main()               
+    unittest.main()

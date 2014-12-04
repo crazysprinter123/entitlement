@@ -55,7 +55,7 @@ class tc_ID267323_access_candlepin_crl_when_system_expired_revoked(RHSMBase):
 
     def register_and_autosubscribe(self, username, password, autosubprod):
         cmd = "subscription-manager register --username=%s --password=%s --auto-attach" % (username, password)
-        (ret, output) = self.runcmd(cmd, "register_and_autosubscribe", timeout=20000)
+        (ret, output) = self.runcmd(cmd, "register_and_autosubscribe")
         if (ret == 0) and ("The system has been registered with ID:" in output) and (autosubprod in output) and ("Subscribed" in output):
             logger.info("It's successful to register and auto-attach")
         else:
@@ -63,7 +63,7 @@ class tc_ID267323_access_candlepin_crl_when_system_expired_revoked(RHSMBase):
 
     def is_enabled_repo(self, repoid):
         cmd = "yum repolist"
-        (ret, output) = self.runcmd(cmd, "list enabled repos", timeout=20000)
+        (ret, output) = self.runcmd(cmd, "list enabled repos")
         if ret == 0 and "repolist:(\s+)0" in output:
             raise FailException("Test Failed - There is not enabled repo to list.")
         else:
@@ -75,7 +75,7 @@ class tc_ID267323_access_candlepin_crl_when_system_expired_revoked(RHSMBase):
 
     def check_givenpkg_avail(self, repoid, testpkg):
         cmd = "repoquery -a --repoid=%s | grep %s" % (repoid, testpkg)
-        (ret, output) = self.runcmd(cmd, "check package available", timeout=20000)
+        (ret, output) = self.runcmd(cmd, "check package available")
         if ret == 0 and testpkg in output:
             logger.info("The package %s exists." % (testpkg))
         else : 
@@ -83,24 +83,25 @@ class tc_ID267323_access_candlepin_crl_when_system_expired_revoked(RHSMBase):
 
     def install_givenpkg(self, testpkg):
         cmd = "yum install -y %s" % (testpkg)
-        (ret, output) = self.runcmd(cmd, "install selected package %s" % testpkg, timeout=20000)
+        (ret, output) = self.runcmd(cmd, "install selected package %s" % testpkg)
         if ret == 0 and "Complete!" in output and "Error" not in output:
             logger.info("The package %s is installed successfully." % (testpkg))
-        elif ret == 1 and ("The subscription for following product(s) has expired" in output):
-            logger.info("It's successful to verify that system should not be able to access CDN bits through thumbslug  proxy when the system is expired.")
-        elif ret == 1 and ("No package %s available." % (testpkg) in output):
-            logger.info("It's successful to verify that system should not be able to access CDN bits through thumbslug  proxy when the system is not attach subscriptions")
+        elif ret == 1:
+            if("The subscription for following product(s) has expired" in output):
+                logger.info("It's successful to verify that system should not be able to access CDN bits through thumbslug  proxy when the system is expired.")
+            else:
+                logger.info("It's successful to verify that system should not be able to access CDN bits through thumbslug  proxy when the system is not attach subscriptions")
         else:
             raise FailException("Test Failed - The package %s is failed to install." % (testpkg))
 
     def uninstall_givenpkg(self, testpkg):
         cmd = "rpm -qa | grep %s" % (testpkg)
-        (ret, output) = self.runcmd(cmd, "check package %s" % testpkg, timeout=20000)
+        (ret, output) = self.runcmd(cmd, "check package %s" % testpkg)
         if ret == 1:
             logger.info("There is no need to remove package")
         else:
             cmd = "yum remove -y %s" % (testpkg)
-            (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg, timeout=20000)
+            (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg)
             if ret == 0 and "Complete!" in output and "Removed" in output:
                 logger.info("The package %s is uninstalled successfully." % (testpkg))
             elif ret == 0 and "No package %s available" % testpkg in output:
@@ -126,7 +127,7 @@ class tc_ID267323_access_candlepin_crl_when_system_expired_revoked(RHSMBase):
 
     def restore_system_time(self):
         cmd = "hwclock --hctosys"
-        (ret, output) = self.runcmd(cmd, "restore system time", timeout=20000)
+        (ret, output) = self.runcmd(cmd, "restore system time")
         if ret == 0:
             logger.info("It's successful to restore the system time")
         else:
