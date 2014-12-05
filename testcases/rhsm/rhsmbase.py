@@ -229,7 +229,16 @@ class RHSMBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to check entitlement certificates.")
 
-
+    def sub_isconsumed(self, productname):
+        cmd = "subscription-manager list --consumed"
+        (ret, output) = self.runcmd(cmd, "listing consumed subscriptions")
+        output_join = " ".join(x.strip() for x in output.split())
+        if (ret == 0) and (productname in output or productname in output_join):
+            logger.info("The subscription of the product is consumed.")
+            return True
+        else:
+            logger.info("The subscription of the product is not consumed.")
+            return False
 
 
 
@@ -532,16 +541,7 @@ class RHSMBase(unittest.TestCase):
 #             else:
 #                     return False
 # 
-#     def sub_isconsumed(self, productname):
-#             cmd = "subscription-manager list --consumed"
-#             (ret, output) = self.runcmd(cmd, "listing consumed subscriptions")
-#             output_join = " ".join(x.strip() for x in output.split())
-#             if (ret == 0) and (productname in output or productname in output_join):
-#                     logger.info("The subscription of the product is consumed.")
-#                     return True
-#             else:
-#                     logger.info("The subscription of the product is not consumed.")
-#                     return False
+
 
 # 
 #     def sub_checkidcert(self):
