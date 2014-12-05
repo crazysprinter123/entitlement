@@ -30,6 +30,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             logger.error(str(e))
             self.assert_(False, case_name)
         finally:
+            self.uninstall_givenpkg(pkgtoinstall)
             self.restore_conf()
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)

@@ -14,7 +14,7 @@ class tc_ID284088_register_with_env_should_not_be_supported_in_sam(RHSMBase):
             cmd = "subscription-manager register --username=%s --password=%s --org=%s --env=Library" % (username, password, org)
             (ret, output) = self.runcmd(cmd, "register with environments")
             if ret != 0 and "Error: Server does not support environments." in output:
-                logging.info("It's successful to verify that register_with_env_should_not_be_supported_in_sam")
+                logger.info("It's successful to verify that register_with_env_should_not_be_supported_in_sam")
             else:
                 raise FailException("Test Failed - failed to verify that register_with_env_should_not_be_supported_in_sam")
             self.assert_(True, case_name)

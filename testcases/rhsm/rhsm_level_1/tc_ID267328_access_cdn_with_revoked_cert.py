@@ -28,6 +28,7 @@ class tc_ID267328_access_cdn_with_revoked_cert(RHSMBase):
             logger.error(str(e))
             self.assert_(False, case_name)
         finally:
+            self.uninstall_givenpkg(pkgtoinstall)
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
@@ -38,6 +39,21 @@ class tc_ID267328_access_cdn_with_revoked_cert(RHSMBase):
             logger.info("It's successful to register and auto-attach")
         else:
             raise FailException("Test Failed - failed to register or auto-attach.")
+
+    def uninstall_givenpkg(self, testpkg):
+        cmd = "rpm -qa | grep %s" % (testpkg)
+        (ret, output) = self.runcmd(cmd, "check package %s" % testpkg)
+        if ret == 1:
+            logger.info("There is no need to remove package")
+        else:
+            cmd = "yum remove -y %s" % (testpkg)
+            (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg)
+            if ret == 0 and "Complete!" in output and "Removed" in output:
+                logger.info("The package %s is uninstalled successfully." % (testpkg))
+            elif ret == 0 and "No package %s available" % testpkg in output:
+                logger.info("The package %s is not installed at all" % (testpkg))
+            else: 
+                raise FailException("Test Failed - The package %s is failed to uninstall." % (testpkg))
 
 if __name__ == "__main__":
     unittest.main()
