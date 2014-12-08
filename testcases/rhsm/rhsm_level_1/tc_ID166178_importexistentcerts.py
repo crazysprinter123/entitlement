@@ -13,14 +13,14 @@ class tc_ID166178_importexistentcerts(RHSMBase):
             self.sub_register(username, password)
             autosubprod = RHSMConstants().get_constant("autosubprod")
             self.sub_autosubscribe(autosubprod)
-            #check whether entitlement certificates generated and productid in them or not
-            productid = RHSMConstants().get_constant("productid")
+            # check whether entitlement certificates generated and productid in them or not
+            productid = self.check_sku_in_consumed_subscriptions()
             self.sub_checkentitlementcerts(productid)
-            #generate entitlement certificate to import and remove entitlement certificate
+            # generate entitlement certificate to import and remove entitlement certificate
             self.generate_and_remove_entcert()
-            #import existing entitlement cert
+            # import existing entitlement cert
             self.import_exist_entcert()
-            #check whether entitlement certificates generated and productid in them or not
+            # check whether entitlement certificates generated and productid in them or not
             self.sub_checkentitlementcerts(productid)
             self.assert_(True, case_name)
         except Exception, e:
@@ -30,17 +30,30 @@ class tc_ID166178_importexistentcerts(RHSMBase):
             self.runcmd('rm -f /tmp/test.pem', "remove test cert")
             self.restore_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
-    def generate_and_remove_entcert(self):
-        cmd="cat /etc/pki/entitlement/* > /tmp/test.pem"
-        (ret,output)=self.runcmd(cmd,"generate entitlement cert")    
+
+    def check_sku_in_consumed_subscriptions(self):
+        sku = None
+        cmd = "subscription-manager list --consumed | grep 'SKU'"
+        (ret, output) = self.runcmd(cmd, "check sku in the list consumed subscriptions")
+        print "output: \n", output[0]
         if ret == 0:
-            self.runcmd('rm -f /etc/pki/entitlement/*', "remove entitlement cert")     
+            sku = output.split(":")[1].strip()
+            return sku
+        else :
+            return sku
+            raise FailException("Test Failed - error happened when check sku in the list consumed subscriptions")
+
+    def generate_and_remove_entcert(self):
+        cmd = "cat /etc/pki/entitlement/* > /tmp/test.pem"
+        (ret, output) = self.runcmd(cmd, "generate entitlement cert")
+        if ret == 0:
+            self.runcmd('rm -f /etc/pki/entitlement/*', "remove entitlement cert")
         else :
             raise FailException("Test Failed - error happened when generate entitlement certs")
 
     def import_exist_entcert(self):
-        cmd=" subscription-manager import --certificate=/tmp/test.pem"
-        (ret,output)=self.runcmd(cmd,"import exist entitlement certificate") 
+        cmd = " subscription-manager import --certificate=/tmp/test.pem"
+        (ret, output) = self.runcmd(cmd, "import exist entitlement certificate") 
         if ret == 0 and "Successfully imported certificate" in output:
             logger.info("Import existing entitlement certificate successfully.")
         else:
