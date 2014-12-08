@@ -1,5 +1,5 @@
 from utils import *
-import time, random
+import time, random, pexpect
 from utils.configs import Configs
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
@@ -19,6 +19,22 @@ class RHSMBase(unittest.TestCase):
     # ========================================================
     #       1. Keyword Functions
     # ========================================================
+    def runcmd_remote(self, remoteIP, username, password, cmd):
+        """ Remote exec function via pexpect """
+        user_hostname = "%s@%s" % (username, remoteIP)
+        child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=60, maxread=2000, logfile=None)
+        while True:
+            index = child.expect(['(yes\/no)', 'password:', pexpect.EOF, pexpect.TIMEOUT])
+            if index == 0:
+                child.sendline("yes")
+            elif index == 1:
+                child.sendline(password)
+            elif index == 2:
+                child.close()
+                return child.exitstatus, child.before
+            elif index == 3:
+                child.close()
+
     def sub_autosubscribe(self, autosubprod):
         # cmd = "subscription-manager subscribe --auto"
         cmd = "subscription-manager attach --auto"
@@ -68,7 +84,16 @@ class RHSMBase(unittest.TestCase):
             else:
                 raise FailException("Test Failed - Failed to unregister.")
         else:
+            self.sub_clean_local_data()
             logger.info("The system is not registered to server now.")
+
+    def sub_clean_local_data(self):
+        cmd = "subscription-manager clean"
+        (ret, output) = self.runcmd(cmd, "clean local data")
+        if ret == 0 and "All local data removed" in output:
+            logger.info("Local data has been cleaned in the server now.")
+        else:
+            raise FailException("Test Failed - Failed to clean local data.")
 
     def sub_isregistered(self):
         cmd = "subscription-manager identity"
@@ -78,6 +103,8 @@ class RHSMBase(unittest.TestCase):
             return True
         else:
             logger.info("The system is not registered to server now.")
+            if "has been deleted" in output:
+                logger.info("the system is not registered to server but has local data!")
             return False
 
     def sub_checkidcert(self):
@@ -240,6 +267,19 @@ class RHSMBase(unittest.TestCase):
             logger.info("The subscription of the product is not consumed.")
             return False
 
+    def sub_get_consumerid(self):
+        consumerid = ''
+        if self.sub_isregistered():
+            cmd = "subscription-manager identity"
+            (ret, output) = self.runcmd(cmd, "get consumerid")
+            if ret == 0 and "system identity:" in output:
+                consumerid_gain = output.split('\n')
+                consumerid_line_split = (consumerid_gain[0]).split(":")
+                consumerid = (consumerid_line_split[1]).strip()
+                logger.info("consumerid is gained successfully!")
+            else:
+                raise FailException("Test Failed - Failed to get subscription-manager identity")
+        return consumerid
 
 
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
@@ -328,19 +368,7 @@ class RHSMBase(unittest.TestCase):
 # 
 
 # 
-#     def sub_get_consumerid(self):
-#             consumerid = ''
-#             if self.sub_isregistered():
-#                     cmd = "subscription-manager identity"
-#                     (ret, output) = self.runcmd(cmd, "get consumerid")
-#                     if ret == 0 and "system identity:" in output:
-#                             consumerid_gain = output.split('\n')
-#                             consumerid_line_split = (consumerid_gain[0]).split(":")
-#                             consumerid = (consumerid_line_split[1]).strip()
-#                             logger.info("consumerid is gained successfully!")
-#                     else:
-#                             raise FailException("Test Failed - Failed to get subscription-manager identity")
-#             return consumerid
+
 # 
 #     def sub_get_poolid(self):
 #             poolid = ''

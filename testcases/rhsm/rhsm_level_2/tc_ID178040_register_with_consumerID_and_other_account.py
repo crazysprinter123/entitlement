@@ -1,67 +1,71 @@
 """
-@author		: qianzhan@redhat.com
-@date		: 2013-03-12
+@author        : qianzhan@redhat.com
+@date        : 2013-03-12
 """
 
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID178040_register_with_consumerID_and_other_account(test, params, env):
-	try:
-		session,vm=eu().init_session_vm(params,env)
-		logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
-		username=ee().get_env(params)["username"]
-		password=ee().get_env(params)["password"]
-		#samip=ee().get_env(params)["samhostip"]
-		samip=params.get("samhostip")
-		#register first time
-		eu().sub_register(session,username,password)
-		#record consumerid
-		consumerid=eu().sub_get_consumerid(session)
-		#autosubscribe
-		autosubprod = ee().get_env(params)["autosubprod"]
-		eu().sub_autosubscribe(session, autosubprod)
+class tc_ID178040_register_with_consumerID_and_other_account(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            samhostip = RHSMConstants().samhostip
+            if samhostip == None:
+                logger.info("This case is just for SAM, no need to test against other servers!")
+            else:
+                self.sub_register(username, password)
+                # record consumerid
+                consumerid = self.sub_get_consumerid()
+                # create a new account from SAM server
+                usernamenew = "test456"
+                passwordnew = "123456"
+                emailnew = "test456@redhat.com"
+                self.create_sam_account(samhostip, usernamenew, passwordnew, emailnew)
+                # clean client data
+                cmd_clean = "subscription-manager clean"
+                (ret, output) = self.runcmd(cmd_clean, "clean client data")
+                if (ret == 0) and ("All local data removed" in output):
+                    logger.info("It's successful to run subscription-manager clean")
+                else:
+                    raise FailException("Test Failed - error happened when run subscription-manager clean")
+                # register with existing consumerid use new created account
+                cmd_register = "subscription-manager register --username=test456 --password=123456 --consumerid=%s" % consumerid
+                (ret, output) = self.runcmd(cmd_register, "register use different username and password")
+                if (ret == 0) and ('The system has been registered with ID' in output):
+                    logger.info("It's successful to verify that registration with existing consumerid using different account should succeed if the two accounts have same orgs")
+                else:
+                    raise FailException("Test Failed - error happened when register with existing consumerid using different account")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            # delete the new account from SAM server
+            self.delete_sam_account(samhostip, usernamenew)
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-		#create a new account from SAM server
-		cmd_create="headpin -u admin -p admin user create --username=test456 --password=123456 --email=test456@redhat.com;headpin -u admin -p admin user assign_role --username=test456 --role=Administrator"
-		(ret, output) = eu().runcmd_remote(samip, "root", "redhat", cmd_create)
-		if ret==0 and "Successfully created user" in output:
-			logging.info("It's successful to create a new account in SAM server:username=test456 password=123456")
-		else:
-			raise error.TestFail("TestFailed - Failed to create a new account!")
+    def create_sam_account(self, samhostip, username, password, email):
+        cmd_create = "headpin -u admin -p admin user create --username=%s --password=%s --email=%s;headpin -u admin -p admin user assign_role --username=%s --role=Administrator" % (username, password, email, username)
+        (ret, output) = self.runcmd_remote(samhostip, "root", "redhat", cmd_create)
+        if ret == 0 and "Successfully created user" in output:
+            logger.info("It's successful to create a new account in SAM server:username=%s password=%s" % (username, password))
+        else:
+            raise FailException("TestFailed - Failed to create a new account!")
 
-		#clean client data
-		cmd_clean="subscription-manager clean"
-		(ret,output)=eu().runcmd(session,cmd_clean,"clean client data")
-		if (ret==0) and ("All local data removed" in output):
-			logging.info("It's successful to run subscription-manager clean")
-		else:
-			raise error.TestFail("Test Failed - error happened when run subscription-manager clean")
+    def delete_sam_account(self, samhostip, username):
+        cmd_delete = "headpin -u admin -p admin user delete --username=%s" % username
+        (ret, output) = self.runcmd_remote(samhostip, "root", "redhat", cmd_delete)
+        if ret == 0 and "Successfully deleted user [ test456 ]" in output:
+            logger.info("It's successful to delete the username and password in SAM")
+        else:
+            raise FailException("Test Failed - error happened when delete the username and password in SAM")
 
-		#register with existing consumerid use new created account
-		cmd_register="subscription-manager register --username=test456 --password=123456 --consumerid=%s"%consumerid
-		(ret,output)=eu().runcmd(session,cmd_register,"register use different username and password")
-		#if (ret!=0) and ("User test456 is not allowed to access api/systems/show" in output):
-		#	logging.info("It's successful to verify that registeration with existing consumerid using different account should not succeed")
-		if (ret!=0) and ('Invalid username or password' in output):
-			logging.info("It's successful to verify that registeration with existing consumerid using different account should not succeed")
-		else:
-			raise error.TestFail("Test Failed - error happened when register with existing consumerid using different account")
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when register with existing consumerid using different account:"+str(e))
-	finally:
-		#delete the new account from SAM server
-		cmd_delete="headpin -u admin -p admin user delete --username=test456"
-		(ret, output) = eu().runcmd_remote(samip, "root", "redhat", cmd_delete)
-		if ret==0 and "Successfully deleted user [ test456 ]" in output:
-			logging.info("It's successful to delete the username and password in SAM")
-		else:
-			raise error.TestFail("Test Failed - error happened when delete the username and password in SAM")
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
+if __name__ == "__main__":
+    unittest.main()

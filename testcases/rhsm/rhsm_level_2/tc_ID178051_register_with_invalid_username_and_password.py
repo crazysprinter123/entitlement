@@ -1,35 +1,40 @@
 """
-@author		: qianzhan@redhat.com
-@date		: 2013-03-12
+@author        : qianzhan@redhat.com
+@date        : 2013-03-12
 """
 
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID178051_register_with_invalid_username_and_password(test, params, env):
-	try:
-		session,vm=eu().init_session_vm(params,env)
-		logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
-		username=ee().get_env(params)["username"]
-		password=ee().get_env(params)["password"]
-		invalidpassword=test
-		cmd="subscription-manager register --username=%s --password='%s'"%(username,invalidpassword)
-		(ret,output)=eu().runcmd(session,cmd,"register with invalid username and password")
-		if ret != 0:
-			if ("Invalid credentials" in output):
-				logging.info("It's successful to verify that invalid password can not be used to register.")
-			else:
-				raise error.TestFail("Test Failed - The information shown after registeration with invalid username and password is not correct.")
-		else:
-			raise error.TestFail("Test Failed - Failed to verify registering with invalid username and password.")
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when verify registering with invalid username and password:"+str(e))
-	finally:
-		eu().sub_unregister(session)
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
+class tc_ID178051_register_with_invalid_username_and_password(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            invalidpassword = "test"
+            if password == invalidpassword:
+                logger.info("the invalid password happens to be a valid password, please choose another invalid password!")
+            else:
+                cmd = "subscription-manager register --username=%s --password='%s'" % (username, invalidpassword)
+                (ret, output) = self.runcmd(cmd, "register with invalid username and password")
+                if ret != 0:
+                    if ("Invalid credentials" in output):
+                        logger.info("It's successful to verify that invalid password can not be used to register.")
+                    else:
+                        raise FailException("Test Failed - The information shown after registeration with invalid username and password is not correct.")
+                else:
+                    raise FailException("Test Failed - Failed to verify registering with invalid username and password.")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
+
+if __name__ == "__main__":
+    unittest.main()
