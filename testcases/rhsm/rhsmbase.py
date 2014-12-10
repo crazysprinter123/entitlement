@@ -281,6 +281,82 @@ class RHSMBase(unittest.TestCase):
                 raise FailException("Test Failed - Failed to get subscription-manager identity")
         return consumerid
 
+    def sub_listallavailpools(self, productid):
+        cmd = "subscription-manager list --available --all"
+        (ret, output) = self.runcmd(cmd, "listing available pools")
+        if ret == 0:
+            if "no available subscription pools to list" not in output.lower():
+                if productid in output:
+                    logger.info("The right available pools are listed successfully.")
+                    pool_list = self.parse_listavailable_output(output)
+                    return pool_list
+                else:
+                    raise FailException("Not the right available pools are listed!")
+            else:
+                logger.info("There is no Available subscription pools to list!")
+                return None
+        else:
+            raise FailException("Test Failed - Failed to list all available pools.")
+
+    def parse_listavailable_output(self, output):
+        datalines = output.splitlines()
+        data_list = []
+        # split output into segmentations for each pool
+        data_segs = []
+        segs = []
+        tmpline = ""
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+                tmpline = line
+            elif line and ":" not in line:
+                tmpline = tmpline + ' ' + line.strip()
+            elif line and ":" in line:
+                segs.append(tmpline)
+                tmpline = line
+            if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line) or ("SystemType:" in line):
+                segs.append(tmpline)
+                data_segs.append(segs)
+                segs = []
+        for seg in data_segs:
+            data_dict = {}
+            for item in seg:
+                keyitem = item.split(":")[0].replace(' ', '')
+                valueitem = item.split(":")[1].strip()
+                data_dict[keyitem] = valueitem
+            data_list.append(data_dict)
+        return data_list
+
+    def sam_remote_create_org(self, samserverIP, username, password, orgname):
+        # create organization with orgname
+        cmd = "headpin -u admin -p admin org create --name=%s" % (orgname)
+        (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
+        if ret == 0 and "Successfully created org" in output:
+            logger.info("It's successful to create organization %s." % orgname)
+        else:
+            raise FailException("Test Failed - Failed to create organization %s." % orgname)
+
+    def sam_remote_delete_org(self, samserverIP, username, password, orgname):
+        # delete an existing organization
+        if self.sam_remote_is_org_exist(samserverIP, username, password, orgname):
+            cmd = "headpin -u admin -p admin org delete --name=%s" % (orgname)
+            (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
+            if ret == 0 and "Successfully deleted org" in output:
+                logger.info("It's successful to delete organization %s." % orgname)
+            else:
+                raise FailException("Test Failed - Failed to delete organization %s." % orgname)
+        else:
+            logger.info("Org %s to be deleted does not exist." % (orgname))
+
+    def sam_remote_is_org_exist(self, samserverIP, username, password, orgname):
+        # check an organization existing or not
+        cmd = "headpin -u admin -p admin org list"
+        (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
+        if ret == 0 and orgname in output:
+            logger.info("Organization %s exists." % orgname)
+            return True
+        else:
+            logger.info("Organization %s does not exist." % orgname)
+            return False
 
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
@@ -423,111 +499,64 @@ class RHSMBase(unittest.TestCase):
 #             else:
 #                     raise FailException("Test Failed - Failed to list consumed pools.")
 # 
-#     def sub_listallavailpools(self, productid):
-#             cmd = "subscription-manager list --available --all"
-#             (ret, output) = self.runcmd(cmd, "listing available pools")
+
 # 
-#             if ret == 0:
-#                     if "no available subscription pools to list" not in output.lower():
-#                             if productid in output:
-#                                     logger.info("The right available pools are listed successfully.")
-#                                     pool_list = self.parse_listavailable_output(output)
-#                                     return pool_list
-#                             else:
-#                                     raise FailException("Not the right available pools are listed!")
+
 # 
-#                     else:
-#                             logger.info("There is no Available subscription pools to list!")
-#                             return None
-#             else:
-#                     raise FailException("Test Failed - Failed to list all available pools.")
-# 
-#     def parse_listavailable_output(self, output):
-#             datalines = output.splitlines()
-#             data_list = []
-# 
-#             # split output into segmentations for each pool
-#             data_segs = []
-#             segs = []
-#             tmpline = ""
-# 
-#             for line in datalines:
-#                     if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
-#                              tmpline = line
-#                     elif line and ":" not in line:
-#                             tmpline = tmpline + ' ' + line.strip()
-#                     elif line and ":" in line:
-#                             segs.append(tmpline)
-#                             tmpline = line
-#                     if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line) or ("SystemType:" in line):
-#                             segs.append(tmpline)
-#                             data_segs.append(segs)
-#                             segs = []
-# 
-#             for seg in data_segs:
-#                     data_dict = {}
-#                     for item in seg:
-#                             keyitem = item.split(":")[0].replace(' ', '')
-#                             valueitem = item.split(":")[1].strip()
-#                             data_dict[keyitem] = valueitem
-#                     data_list.append(data_dict)
-# 
-#             return data_list
-# 
-#     def parse_listconsumed_output(self, output):
-#             datalines = output.splitlines()
-#             data_list = []
-# 
-#             # split output into segmentations
-#             data_segs = []
-#             segs = []
-#             tmpline = ""
-# 
-#             '''
-#             for line in datalines:
-#             if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
-#                     segs.append(line)
-#             elif segs:
-#                     segs.append(line)
-#             if ("Expires:" in line) or ("Ends:" in line):
-#                     data_segs.append(segs)
-#                     segs = []
-#             '''
-#                             # new way
-#             for line in datalines:
-#                     if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
-#                              tmpline = line
-#                     elif line and ":" not in line:
-#                             tmpline = tmpline + ' ' + line.strip()
-#                     elif line and ":" in line:
-#                             segs.append(tmpline)
-#                             tmpline = line
-#                     if ("Expires:" in line) or ("Ends:" in line):
-#                             segs.append(tmpline)
-#                             data_segs.append(segs)
-#                             segs = []
-# 
-#             '''# handle item with multi rows
-#             for seg in data_segs:
-#                     length = len(seg)
-#                     for index in range(0, length):
-#                             if ":" not in seg[index]:
-#                                     seg[index-1] = seg[index-1] + " " + seg[index].strip()
-#                     for item in seg:
-#                             if ":" not in item:
-#                                     seg.remove(item)
-#             '''
-#             # parse detail information
-#             for seg in data_segs:
-#                     data_dict = {}
-#             for item in seg:
-#                     keyitem = item.split(":")[0].replace(' ', '')
-#                     valueitem = item.split(":")[1].strip()
-#                     data_dict[keyitem] = valueitem
-#             data_list.append(data_dict)
-# 
-#             return data_list
-# 
+    def parse_listconsumed_output(self, output):
+        datalines = output.splitlines()
+        data_list = []
+
+        # split output into segmentations
+        data_segs = []
+        segs = []
+        tmpline = ""
+
+        '''
+        for line in datalines:
+        if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+              segs.append(line)
+        elif segs:
+             segs.append(line)
+        if ("Expires:" in line) or ("Ends:" in line):
+                data_segs.append(segs)
+                segs = []
+        '''
+         # new way
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+                tmpline = line
+            elif line and ":" not in line:
+                tmpline = tmpline + ' ' + line.strip()
+            elif line and ":" in line:
+                segs.append(tmpline)
+                tmpline = line
+            if ("Expires:" in line) or ("Ends:" in line):
+                segs.append(tmpline)
+                data_segs.append(segs)
+                segs = []
+
+        '''# handle item with multi rows
+        for seg in data_segs:
+                length = len(seg)
+                for index in range(0, length):
+                        if ":" not in seg[index]:
+                                seg[index-1] = seg[index-1] + " " + seg[index].strip()
+                for item in seg:
+                        if ":" not in item:
+                                seg.remove(item)
+        '''
+            # parse detail information
+        for seg in data_segs:
+            data_dict = {}
+        for item in seg:
+           keyitem = item.split(":")[0].replace(' ', '')
+           valueitem = item.split(":")[1].strip()
+           data_dict[keyitem] = valueitem
+        data_list.append(data_dict)
+
+        return data_list
+ 
 #     def sub_subscribetopool(self, poolid):
 #             cmd = "subscription-manager subscribe --pool=%s" % (poolid)
 #             (ret, output) = self.runcmd(cmd, "subscribe")
@@ -687,41 +716,9 @@ class RHSMBase(unittest.TestCase):
 #             else:
 #                     logger.info("Org %s to be deleted does not exist." % (orgname))
 # 
-#     def sam_remote_create_org(self, samserverIP, username, password, orgname):
-#             # create organization with orgname
-#             cmd = "headpin -u admin -p admin org create --name=%s" % (orgname)
-#             (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
-# 
-#             if ret == 0 and "Successfully created org" in output:
-#                     logger.info("It's successful to create organization %s." % orgname)
-#             else:
-#                     raise FailException("Test Failed - Failed to create organization %s." % orgname)
-# 
-#     def sam_remote_is_org_exist(self, samserverIP, username, password, orgname):
-#             # check an organization existing or not
-#             cmd = "headpin -u admin -p admin org list"
-#             (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
-# 
-#             if ret == 0 and orgname in output:
-#                     logger.info("Organization %s exists." % orgname)
-#                     return True
-#             else:
-#                     logger.info("Organization %s does not exist." % orgname)
-#                     return False
-# 
-#     def sam_remote_delete_org(self, samserverIP, username, password, orgname):
-#             # delete an existing organization
-#             if self.sam_remote_is_org_exist(samserverIP, username, password, orgname):
-#                     cmd = "headpin -u admin -p admin org delete --name=%s" % (orgname)
-#                     (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
-# 
-#                     if ret == 0 and "Successfully deleted org" in output:
-#                             logger.info("It's successful to delete organization %s." % orgname)
-#                     else:
-#                             raise FailException("Test Failed - Failed to delete organization %s." % orgname)
-#             else:
-#                     logger.info("Org %s to be deleted does not exist." % (orgname))
-# 
+
+
+
 # 
 #     def sam_create_env(self, envname, orgname, priorenv):
 #             ''' create environment belong to organizaiton with prior environment. '''
