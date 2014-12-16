@@ -1,30 +1,26 @@
-import sys, os, subprocess, commands
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
-import datetime
-import time
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID324771_rm_sm_dependency_on_python_simplejson(test, params, env):
+class tc_ID324771_rm_sm_dependency_on_python_simplejson(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            cmd = "rpm --query --requires python-rhsm --verbose | grep 'python-simplejson'"
+            (ret, output) = self.runcmd(cmd, "check dependency on python-simplejson")
+            if ret != 0 and 'python-simplejson' not in output:
+                logger.info("It's successful to check dependency on python-simplejson")
+            else:
+                raise FailException("Test Failed - Failed to check dependency on python-simplejson.")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-	session,vm=eu().init_session_vm(params,env)
-	logging.info("=========== Begin of Running Test Case: %s ==========="%__name__)
-	guest_name=params['guest_name']
-	try:
-		cmd = "rpm --query --requires python-rhsm --verbose | grep 'python-simplejson'"
-		(ret,output) = eu().runcmd(session,cmd,"check dependency on python-simplejson")
-		if ret != 0 and 'python-simplejson' not in output:
-			logging.info("It's successful to check dependency on python-simplejson")
-		elif ret == 0 and "5" in guest_name:
-			logging.info("RHEL 7 features are being backported for 5.11 but this does not imply package dependencies will be the same.")
-		else:
-			raise error.TestFail("Test Failed - Failed to check dependency on python-simplejson.")
-		
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened when dependency on python-simplejson:"+str(e))
-	finally:
-		logging.info("=========== End of Running Test Case: %s ==========="%__name__)
+if __name__ == "__main__":
+    unittest.main()
