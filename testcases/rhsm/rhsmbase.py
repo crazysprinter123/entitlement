@@ -358,6 +358,65 @@ class RHSMBase(unittest.TestCase):
             logger.info("Organization %s does not exist." % orgname)
             return False
 
+    def parse_listconsumed_output(self, output):
+        datalines = output.splitlines()
+        data_list = []
+        # split output into segmentations
+        data_segs = []
+        segs = []
+        tmpline = ""
+        '''
+        for line in datalines:
+        if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+              segs.append(line)
+        elif segs:
+             segs.append(line)
+        if ("Expires:" in line) or ("Ends:" in line):
+                data_segs.append(segs)
+                segs = []
+        '''
+         # new way
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+                tmpline = line
+            elif line and ":" not in line:
+                tmpline = tmpline + ' ' + line.strip()
+            elif line and ":" in line:
+                segs.append(tmpline)
+                tmpline = line
+            if ("Expires:" in line) or ("Ends:" in line):
+                segs.append(tmpline)
+                data_segs.append(segs)
+                segs = []
+
+        '''# handle item with multi rows
+        for seg in data_segs:
+                length = len(seg)
+                for index in range(0, length):
+                        if ":" not in seg[index]:
+                                seg[index-1] = seg[index-1] + " " + seg[index].strip()
+                for item in seg:
+                        if ":" not in item:
+                                seg.remove(item)
+        '''
+            # parse detail information
+        for seg in data_segs:
+            data_dict = {}
+        for item in seg:
+           keyitem = item.split(":")[0].replace(' ', '')
+           valueitem = item.split(":")[1].strip()
+           data_dict[keyitem] = valueitem
+        data_list.append(data_dict)
+        return data_list
+
+    def restart_rhsmcertd(self):
+        cmd = "service rhsmcertd restart"
+        (ret, output) = self.runcmd(cmd, "restart rhsmcertd service")
+        if ret == 0 and "Redirecting to /bin/systemctl restart  rhsmcertd.service" in output:
+            logger.info("It's successful to restart rhsmcertd service")
+        else:
+            raise FailException("Test Failed - Failed to restart rhsmcertd service.")
+
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
 #                     vm.copy_files_to(sourcepath, targetpath)
@@ -503,60 +562,8 @@ class RHSMBase(unittest.TestCase):
 # 
 
 # 
-    def parse_listconsumed_output(self, output):
-        datalines = output.splitlines()
-        data_list = []
 
-        # split output into segmentations
-        data_segs = []
-        segs = []
-        tmpline = ""
 
-        '''
-        for line in datalines:
-        if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
-              segs.append(line)
-        elif segs:
-             segs.append(line)
-        if ("Expires:" in line) or ("Ends:" in line):
-                data_segs.append(segs)
-                segs = []
-        '''
-         # new way
-        for line in datalines:
-            if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
-                tmpline = line
-            elif line and ":" not in line:
-                tmpline = tmpline + ' ' + line.strip()
-            elif line and ":" in line:
-                segs.append(tmpline)
-                tmpline = line
-            if ("Expires:" in line) or ("Ends:" in line):
-                segs.append(tmpline)
-                data_segs.append(segs)
-                segs = []
-
-        '''# handle item with multi rows
-        for seg in data_segs:
-                length = len(seg)
-                for index in range(0, length):
-                        if ":" not in seg[index]:
-                                seg[index-1] = seg[index-1] + " " + seg[index].strip()
-                for item in seg:
-                        if ":" not in item:
-                                seg.remove(item)
-        '''
-            # parse detail information
-        for seg in data_segs:
-            data_dict = {}
-        for item in seg:
-           keyitem = item.split(":")[0].replace(' ', '')
-           valueitem = item.split(":")[1].strip()
-           data_dict[keyitem] = valueitem
-        data_list.append(data_dict)
-
-        return data_list
- 
 #     def sub_subscribetopool(self, poolid):
 #             cmd = "subscription-manager subscribe --pool=%s" % (poolid)
 #             (ret, output) = self.runcmd(cmd, "subscribe")

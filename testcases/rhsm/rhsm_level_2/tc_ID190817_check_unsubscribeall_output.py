@@ -1,64 +1,54 @@
-import sys, os, subprocess, commands, random
-import logging
-from autotest_lib.client.common_lib import error
-from autotest_lib.client.bin import utils
-from autotest_lib.client.virt import virt_test_utils, virt_utils
-from autotest_lib.client.tests.kvm.tests.ent_utils import ent_utils as eu
-from autotest_lib.client.tests.kvm.tests.ent_env import ent_env as ee
+from utils import *
+from testcases.rhsm.rhsmbase import RHSMBase
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils.exception.failexception import FailException
 
-def run_tc_ID190817_check_unsubscribeall_output(test, params, env):
-	
-	session, vm = eu().init_session_vm(params, env)
-	logging.info("========== Begin of Running Test Case %s ==========" %__name__)
-	
-	try:
-		#register to server
-		username = ee().get_env(params)["username"]
-		password = ee().get_env(params)["password"]
-		eu().sub_register(session, username, password)
-		
-		#prepare a env auto subsribe to a pool
-		autosubprod = ee().get_env(params)["autosubprod"]
-		eu().sub_autosubscribe(session, autosubprod)
-		
-		#run cmd unsubscribe --all
-		cmd = "subscription-manager unsubscribe --all"
-		(ret, output) = eu().runcmd(session, cmd, "run cmd unsubscribe --all")
-		expectoutput = "This machine has been unsubscribed from 1 subscriptions"
-		expectoutputnew = "subscription removed from this system."
-		expectoutput5101 = "subscription removed at the server."
-		expectoutput5102 = "local certificate has been deleted."
-		
-		if 0 == ret and ((expectoutput5101 in output and expectoutput5102 in output) \
-		  or (expectoutput in output or expectoutputnew in output)):
-			firstresult = True
-			print "True\n"
-		else:
-			firstresult = False
-			print "False\n"
-			
-		#unsubscribe before subscribe
-		cmd = "subscription-manager unsubscribe --all"
-		(ret, output) = eu().runcmd(session, cmd, "run cmd unsubscribe --all again")
-		
-		expectoutput = "This machine has been unsubscribed from 0 subscriptions"
-		expectoutputnew = "0 subscriptions removed from this system."
-		expectoutput510 = "subscriptions removed at the server."
-		
-		if 0 == ret and (expectoutput510 in output or expectoutput in output or expectoutputnew in output):
-			secondresult = True
-			print "True\n"
-		else:
-			secondresult = False
-			print "False\n"
-		
-		if firstresult and secondresult:
-			logging.info("It is successful to run cmd subscription-manager unsubscribe --all and check the output!")
-		else:
-			raise error.TestFail("Test Faild - Failed to run cmd subscription-manager unsubscribe --all and check the output!")
-	except Exception, e:
-		logging.error(str(e))
-		raise error.TestFail("Test Failed - error happened to check the default output of release cmd:" + str(e))
-	finally:
-		eu().sub_unregister(session)
-		logging.info("========== End of Running Test Case: %s ==========" %__name__)
+class tc_ID190817_check_unsubscribeall_output(RHSMBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            username = RHSMConstants().get_constant("username")
+            password = RHSMConstants().get_constant("password")
+            self.sub_register(username, password)
+            autosubprod = RHSMConstants().get_constant("autosubprod")
+            self.sub_autosubscribe(autosubprod)
+            # run cmd unsubscribe --all
+            cmd = "subscription-manager unsubscribe --all"
+            (ret, output) = self.runcmd(cmd, "run cmd unsubscribe --all")
+            expectoutput = "This machine has been unsubscribed from 1 subscriptions"
+            expectoutputnew = "subscription removed from this system."
+            expectoutput5101 = "subscription removed at the server."
+            expectoutput5102 = "local certificate has been deleted."
+            if 0 == ret and ((expectoutput5101 in output and expectoutput5102 in output) or (expectoutput in output or expectoutputnew in output)):
+                firstresult = True
+                print "True\n"
+            else:
+                firstresult = False
+                print "False\n"
+            # unsubscribe before subscribe
+            cmd = "subscription-manager unsubscribe --all"
+            (ret, output) = self.runcmd(cmd, "run cmd unsubscribe --all again")
+            expectoutput = "This machine has been unsubscribed from 0 subscriptions"
+            expectoutputnew = "0 subscriptions removed from this system."
+            expectoutput510 = "subscriptions removed at the server."
+            if 0 == ret and (expectoutput510 in output or expectoutput in output or expectoutputnew in output):
+                secondresult = True
+                print "True\n"
+            else:
+                secondresult = False
+                print "False\n"
+            if firstresult and secondresult:
+                logger.info("It is successful to run cmd subscription-manager unsubscribe --all and check the output!")
+            else:
+                raise FailException("Test Faild - Failed to run cmd subscription-manager unsubscribe --all and check the output!")
+            self.assert_(True, case_name)
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            self.restore_environment()
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
+
+if __name__ == "__main__":
+    unittest.main()
