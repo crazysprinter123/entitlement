@@ -8,6 +8,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            self.check_and_backup_yum_repos()
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             autosubprod = RHSMConstants().get_constant("autosubprod")
@@ -31,6 +32,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             self.assert_(False, case_name)
         finally:
             self.uninstall_givenpkg(pkgtoinstall)
+            self.restore_repos()
             self.restore_conf()
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
