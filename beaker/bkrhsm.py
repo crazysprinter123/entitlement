@@ -11,7 +11,7 @@ class BKRHSM(BeakerBase):
     '''
     conf_file_name = RHSM_CONF
 
-    def start(self, distro=None, sam_build=None, sam_server=None):
+    def start(self, distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_1"):
         if distro == None:
             distro = self.confs._confs["beakerdistro"]
         if sam_server == None:
@@ -30,8 +30,14 @@ class BKRHSM(BeakerBase):
             beaker_command.set_packages(job_xml, RHEL7_PACKAGES)
         else:
             beaker_command.set_packages(job_xml, PACKAGES)
-        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_LEVEL", "rhsm_level_1")
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_LEVEL", run_level)
         job = beaker_command.job_submit(job_xml)
+
+class BKRHSMLEVEL1(BKRHSM):
+    BKRHSM().start(distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_1")
+
+class BKRHSMLEVEL2(BKRHSM):
+    BKRHSM().start(distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_2")
 
 if __name__ == "__main__":
     BKRHSM().start()

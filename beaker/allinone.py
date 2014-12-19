@@ -1,4 +1,4 @@
-from beaker.bkrhsm import BKRHSM
+from beaker.bkrhsm import BKRHSMLEVEL1, BKRHSMLEVEL2
 from beaker.bkrhsmgui import BKRHSMGUI
 from beaker.bksaminstall import BKSAMInstall
 from utils.installation.vwkscreate import VWKSCreate
@@ -16,7 +16,8 @@ class AllInOne():
             # if no sam new build, install the latest one
             if new_sam == -1:
                 new_sam, sam_build, sam_server = BKSAMInstall().start(sam_build)
-            BKRHSM().start(build, sam_build, sam_server)
+            BKRHSMLEVEL1().start(build, sam_build, sam_server)
+            BKRHSMLEVEL2().start(build, sam_build, sam_server)
             BKRHSMGUI().start(build, sam_build, sam_server)
             BKvirtwhoKVM().start(build, sam_build, sam_server)
             BKvirtwhoESX().start(build, sam_build, sam_server)
