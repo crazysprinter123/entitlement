@@ -1,6 +1,6 @@
 from utils import *
-# from utils.configs import Configs
-# from utils.constants import RHSM_CONF
+from utils.configs import Configs
+from utils.constants import RHSM_CONF
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 
@@ -70,8 +70,17 @@ class RHSMConstants(object):
     def __init__(self):
         if(self.__initialized): return
         self.__initialized = True
-        # self.confs = Configs(RHSM_CONF)
-        # self.server = self.confs._confs["server"]
+        # Just for debug in local
+#         self.confs = Configs(RHSM_CONF)
+#         self.server = self.confs._confs["server"]
+#         if self.server == "sam":
+#             self.configure_sam_host(self.confs._confs["samhostname"], self.confs._confs["samhostip"])
+#             self.samhostip = self.confs._confs["samhostip"]
+#         elif self.server == "stage":
+#             self.configure_stage_host(self.confs._confs["stage_name"])
+#         elif self.server == "candlepin":
+#             pass
+        # Running in beaker
         self.server = self.get_delivered_param("RUN_SERVER")
         if self.server == "sam":
             samhostip = self.get_delivered_param("SAM_IP")
