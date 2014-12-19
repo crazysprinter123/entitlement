@@ -30,7 +30,10 @@ class BKRHSM(BeakerBase):
             beaker_command.set_packages(job_xml, RHEL7_PACKAGES)
         else:
             beaker_command.set_packages(job_xml, PACKAGES)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_SERVER", "sam")
         beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_LEVEL", run_level)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "SAM_IP", sam_ip)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "SAM_HOSTNAME", sam_server)
         job = beaker_command.job_submit(job_xml)
 
 class BKRHSMLEVEL1(BKRHSM):

@@ -26,7 +26,11 @@
 			<task name="/distribution/install" role="STANDALONE"/>
 			<task name="/distribution/entitlement-qa/Regression/rhsm" role="STANDALONE">
 				<params>
+					<param name="RUN_SERVER" value="sam"/>
 					<param name="RUN_LEVEL" value="rhsm_level_1"/>
+					<param name="SAM_IP" value=""/>
+					<param name="SAM_HOSTNAME" value=""/>
+					<param name="STAGE_NAME" value=""/>
 				</params>
 			</task>
 			<task name="/distribution/reservesys" role="STANDALONE">

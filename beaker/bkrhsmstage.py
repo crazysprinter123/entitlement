@@ -3,13 +3,13 @@ from utils import logger
 from beaker.beakerbase import BeakerBase
 from utils.tools.shell.command import Command
 from utils.tools.shell.beakercmd import BeakerCMD
-from utils.constants import RHSM_STAGE_CONF, RHSM_JOB, RHEL7_PACKAGES, PACKAGES
+from utils.constants import RHSM_CONF, RHSM_JOB, RHEL7_PACKAGES, PACKAGES
 
 class BKRHSMSTAGE(BeakerBase):
     '''
     classdocs
     '''
-    conf_file_name = RHSM_STAGE_CONF
+    conf_file_name = RHSM_CONF
 
     def start(self, distro=None, run_level="rhsm_level_1"):
         if distro == None:
@@ -25,6 +25,7 @@ class BKRHSMSTAGE(BeakerBase):
             beaker_command.set_packages(job_xml, RHEL7_PACKAGES)
         else:
             beaker_command.set_packages(job_xml, PACKAGES)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_SERVER", "stage")
         beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_LEVEL", run_level)
         job = beaker_command.job_submit(job_xml)
 
