@@ -1,4 +1,5 @@
 from beaker.bkrhsm import BKRHSMLEVEL1, BKRHSMLEVEL2
+from beaker.bkrhsmstage import BKRHSMSTAGELEVEL1, BKRHSMSTAGELEVEL2
 from beaker.bkrhsmgui import BKRHSMGUI
 from beaker.bksaminstall import BKSAMInstall
 from utils.installation.vwkscreate import VWKSCreate
@@ -13,6 +14,9 @@ class AllInOne():
         new_rhel, build = VWKSCreate().start()
         new_sam, sam_build, sam_server = BKSAMInstall().start()
         if new_rhel == 0 or new_sam == 0:
+            # run stage testing only new rhel comes
+            if new_rhel == 0:
+                BKRHSMSTAGELEVEL1().start(build)
             # if no sam new build, install the latest one
             if new_sam == -1:
                 new_sam, sam_build, sam_server = BKSAMInstall().start(sam_build)
