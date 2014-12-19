@@ -155,6 +155,6 @@ class RHSMConstants(object):
         ret, output = Command().run(cmd)
         if ret == 0:
             logger.info("Succeeded to get parameter %s=%s" % (param_name, output))
-            return output
+            return output.strip("\n").strip(" ")
         else:
             raise FailException("Failed to get parameter %s" % param_name)
