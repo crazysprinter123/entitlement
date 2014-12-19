@@ -153,8 +153,9 @@ class RHSMConstants(object):
     def get_delivered_param(self, param_name):
         cmd = "echo $%s" % param_name
         ret, output = Command().run(cmd)
+        output = output.strip("\n").strip(" ")
         if ret == 0:
             logger.info("Succeeded to get parameter %s=%s" % (param_name, output))
-            return output.strip("\n").strip(" ")
+            return output
         else:
             raise FailException("Failed to get parameter %s" % param_name)

@@ -27,6 +27,7 @@ class BKRHSMSTAGE(BeakerBase):
             beaker_command.set_packages(job_xml, PACKAGES)
         beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_SERVER", "stage")
         beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "RUN_LEVEL", run_level)
+        beaker_command.update_job_param(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "STAGE_NAME", "subscription.rhn.stage.redhat.com")
         job = beaker_command.job_submit(job_xml)
 
 class BKRHSMSTAGELEVEL1(BKRHSMSTAGE):
