@@ -4,7 +4,8 @@ Defines various constants
 import os
 
 # configure module
-RHSM_CONF = "rhsm.conf"
+RHSM_CONF = "rhsm_sam.conf"
+RHSM_STAGE_CONF = "rhsm_stage.conf"
 RHSM_GUI_CONF = "rhsm_gui.conf"
 SAM_INSTALLATION_CONF = "sam_installation.conf"
 RHEL_INSTALLATION_CONF = "rhel_installation.conf"

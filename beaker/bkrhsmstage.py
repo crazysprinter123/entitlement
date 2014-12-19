@@ -3,13 +3,13 @@ from utils import logger
 from beaker.beakerbase import BeakerBase
 from utils.tools.shell.command import Command
 from utils.tools.shell.beakercmd import BeakerCMD
-from utils.constants import RHSM_CONF, RHSM_JOB, RHEL7_PACKAGES, PACKAGES
+from utils.constants import RHSM_STAGE_CONF, RHSM_JOB, RHEL7_PACKAGES, PACKAGES
 
 class BKRHSMSTAGE(BeakerBase):
     '''
     classdocs
     '''
-    conf_file_name = RHSM_CONF
+    conf_file_name = RHSM_STAGE_CONF
 
     def start(self, distro=None, run_level="rhsm_level_1"):
         if distro == None:
