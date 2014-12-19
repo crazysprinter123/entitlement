@@ -24,6 +24,3 @@ class tc_ID324080_config_should_NOT_have_proxy_options(RHSMBase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-            
