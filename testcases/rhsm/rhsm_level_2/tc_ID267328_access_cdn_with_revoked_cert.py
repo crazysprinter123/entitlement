@@ -3,32 +3,34 @@ from testcases.rhsm.rhsmbase import RHSMBase
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID267324_access_cdn_without_entitlement_cert(RHSMBase):
+class tc_ID267328_access_cdn_with_revoked_cert(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            self.check_and_backup_yum_repos()
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             autosubprod = RHSMConstants().get_constant("autosubprod")
             pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
             # register to and auto-attach
             self.register_and_autosubscribe(username, password, autosubprod)
-            # remove all cert files under /etc/pki/entitlement/
-            self.remove_ent_cert()
+            # unregister
+            self.sub_unregister()
             # install a pkg
             cmd = "yum install -y %s" % (pkgtoinstall)
             (ret, output) = self.runcmd(cmd, "install selected package %s" % pkgtoinstall)
             if ret == 1:
-                logger.info("It's successful to verify that system without entitlement certificates cannot access CDN  contents through thumbslug")
+                logger.info("It's successful to verify that system cannot access CDN contents through thumbslug with revoked cert")
             else:
-                raise FailException("Test Failed - failed to verify that system without entitlement certificates cannot access CDN  contents through thumbslug")
+                raise FailException("Test Failed - failed to verify that system cannot access CDN contents through thumbslug with revoked cert")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error(str(e))
             self.assert_(False, case_name)
         finally:
             self.uninstall_givenpkg(pkgtoinstall)
+            self.restore_repos()
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
@@ -39,14 +41,6 @@ class tc_ID267324_access_cdn_without_entitlement_cert(RHSMBase):
             logger.info("It's successful to register and auto-attach")
         else:
             raise FailException("Test Failed - failed to register or auto-attach.")
-
-    def remove_ent_cert(self):
-        cmd = "rm -f /etc/pki/entitlement/*"
-        (ret, output) = self.runcmd(cmd, "remove all entitlement certs")
-        if ret == 0:
-            logger.info("It's successful to remove all entitlement certs")
-        else:
-            raise FailException("Test Failed - failed to remove entitlement cert")
 
     def uninstall_givenpkg(self, testpkg):
         cmd = "rpm -qa | grep %s" % (testpkg)

@@ -19,22 +19,6 @@ class RHSMBase(unittest.TestCase):
     # ========================================================
     #       1. Keyword Functions
     # ========================================================
-    def runcmd_remote(self, remoteIP, username, password, cmd):
-        """ Remote exec function via pexpect """
-        user_hostname = "%s@%s" % (username, remoteIP)
-        child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=60, maxread=2000, logfile=None)
-        while True:
-            index = child.expect(['(yes\/no)', 'password:', pexpect.EOF, pexpect.TIMEOUT])
-            if index == 0:
-                child.sendline("yes")
-            elif index == 1:
-                child.sendline(password)
-            elif index == 2:
-                child.close()
-                return child.exitstatus, child.before
-            elif index == 3:
-                child.close()
-
     def sub_autosubscribe(self, autosubprod):
         # cmd = "subscription-manager subscribe --auto"
         cmd = "subscription-manager attach --auto"
@@ -416,6 +400,61 @@ class RHSMBase(unittest.TestCase):
             logger.info("It's successful to restart rhsmcertd service")
         else:
             raise FailException("Test Failed - Failed to restart rhsmcertd service.")
+
+    def check_and_backup_yum_repos(self):
+        # check if yum.repos.d is empty
+        cmd = "ls /etc/yum.repos.d | wc -l"
+        (ret, output) = self.runcmd(cmd, "check if yum.repos.d is empty")
+        if ret == 0:
+            if output.strip() != '0':
+                logger.info("It's successful to verify yum.repos.d is NOT empty. Backup is needed before testing")
+                backuprepo = True
+            else:
+                logger.info("No need to back repos.")
+                backuprepo = False
+        else:
+            raise FailException("Test Failed - Failed to check if yum.repos.d is empty.")
+        if backuprepo == True:
+            cmd = "rm -rf /root/backuprepo;mkdir /root/backuprepo; mv /etc/yum.repos.d/* /root/backuprepo/"
+            (ret, output) = self.runcmd(cmd, "backup repo")
+            if ret == 0:
+                logger.info("It's successful to backup repo.")
+            else:
+                raise FailException("Test Failed - Failed to backuprepo.")
+        else:
+            logger.info("No need to back up repos")
+
+    def restore_repos(self):
+        cmd = "ls /root/backuprepo"
+        (ret, output) = self.runcmd(cmd, "check if repos' backup is empty")
+        if ret == 0:
+            logger.info("The repos backup exist, and need restore")
+            cmd = "mv /root/backuprepo/* /etc/yum.repos.d/"
+            (ret, output) = self.runcmd(cmd, "restore repos back up")
+            if ret == 0:
+                logger.info("It's successful to restore repos")
+            else:
+                raise FailException("Test Failed - Failed to restore repo.")
+        else:
+            logger.info("no need to restore the repos")
+
+    def runcmd_remote(self, remoteIP, username, password, cmd):
+        """ Remote exec function via pexpect """
+        user_hostname = "%s@%s" % (username, remoteIP)
+        child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=60, maxread=2000, logfile=None)
+        while True:
+            index = child.expect(['(yes\/no)', 'password:', pexpect.EOF, pexpect.TIMEOUT])
+            if index == 0:
+                child.sendline("yes")
+            elif index == 1:
+                child.sendline(password)
+            elif index == 2:
+                child.close()
+                return child.exitstatus, child.before
+            elif index == 3:
+                child.close()
+
+
 
 #     def copyfiles(self, vm, sourcepath, targetpath, cmddesc=""):
 #             if vm != None:
