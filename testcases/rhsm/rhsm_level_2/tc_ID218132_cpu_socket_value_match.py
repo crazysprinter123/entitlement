@@ -10,8 +10,14 @@ class tc_ID218132_cpu_socket_value_match(RHSMBase):
         try:
             cmd = 'subscription-manager facts --list | grep "socket(s)"'
             (ret, output) = self.runcmd(cmd, "match socket(s)")
-            if ret == 0 and 'cpu.cpu_socket(s): 1' in output:
-                if 'lscpu.socket(s): 1' in output:
+            if ret == 0 and 'cpu.cpu_socket(s)' in output and 'lscpu.socket(s)' in output:
+                output_list = output.split("\n")
+                for item in output_list:
+                    if "cpu.cpu_socket(s)" in item:
+                        socket1 = item.strip().split(":")[1]
+                    elif 'lscpu.socket(s)' in item:
+                        socket2 = item.strip().split(":")[1]
+                if socket1 == socket2:
                     logger.info("Test Successful - It's successful checking cpu.cpu_socket(s) value match lscpu.cpu_socket(s) value in subscription-manager facts.") 
                 else:
                     logger.info("Test skipped - The system facts doesn't have the lscpu.socket(s) option")

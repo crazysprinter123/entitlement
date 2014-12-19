@@ -11,10 +11,13 @@ class tc_ID189613_list_consumed_matching_servicelevel(RHSMBase):
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             self.sub_register(username, password)
-            autosubprod = RHSMConstants().get_constant("autosubprod")
-            self.sub_autosubscribe(autosubprod)
             # get service_level
             service_level = RHSMConstants().get_constant("servicelevel")
+            # set service level
+            self.sub_set_servicelevel(service_level)
+            # auto attach
+            autosubprod = RHSMConstants().get_constant("autosubprod")
+            self.sub_autosubscribe(autosubprod)
             # list consumed subscriptions matching specified service level
             cmd = "subscription-manager list --consumed --servicelevel=%s" % service_level
             (ret, output) = self.runcmd(cmd, "list consumed subscriptions matching specified service level")
@@ -35,7 +38,8 @@ class tc_ID189613_list_consumed_matching_servicelevel(RHSMBase):
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
     def check_servicelevel_in_listconsumed_ouput(self, output, service_level):
-        if "No consumed subscription pools to list" not in output:
+#        if "No consumed subscription pools to list" not in output:
+        if "No consumed subscription pools matching the specified criteria were found" not in output:
             pool_list = self.parse_listavailable_output(output)
             for item in pool_list:
                 if item['ServiceLevel'] != service_level:
