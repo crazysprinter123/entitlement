@@ -34,10 +34,12 @@ class BKRHSM(BeakerBase):
         job = beaker_command.job_submit(job_xml)
 
 class BKRHSMLEVEL1(BKRHSM):
-    BKRHSM().start(distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_1")
+    def start(self, distro=None, sam_build=None, sam_server=None):
+        BKRHSM().start(distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_1")
 
 class BKRHSMLEVEL2(BKRHSM):
-    BKRHSM().start(distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_2")
+    def start(self, distro=None, sam_build=None, sam_server=None):
+        BKRHSM().start(distro=None, sam_build=None, sam_server=None, run_level="rhsm_level_2")
 
 if __name__ == "__main__":
     BKRHSM().start()
