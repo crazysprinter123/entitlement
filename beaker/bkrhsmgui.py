@@ -34,7 +34,10 @@ class BKRHSMGUI(BeakerBase):
             beaker_command.set_packages(job_xml, PACKAGES)
 
         beaker_command.update_task(job_xml, "/distribution/entitlement-qa/Regression/rhsm", "/installation/entitlement-qa/Regression/rhsm-gui")
+        beaker_command.update_job_param(job_xml, "/installation/entitlement-qa/Regression/rhsm-gui", "RUN_SERVER", "sam")
         beaker_command.update_job_param(job_xml, "/installation/entitlement-qa/Regression/rhsm-gui", "RUN_LEVEL", "rhsm_gui")
+        beaker_command.update_job_param(job_xml, "/installation/entitlement-qa/Regression/rhsm-gui", "SAM_IP", sam_ip)
+        beaker_command.update_job_param(job_xml, "/installation/entitlement-qa/Regression/rhsm-gui", "SAM_HOSTNAME", sam_server)
 
         job = beaker_command.job_submit(job_xml)
 
