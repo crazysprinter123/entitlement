@@ -37,25 +37,26 @@ export AVC_ERROR=+no_avc_check
 
 rlJournalStart
     rlPhaseStartSetup
-        #configure for ldtp gui test
-        gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
-        gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false
-        gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false
-        gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0
-        if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
-            rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
-            yum -y install git
-        fi
-        cd /root
-        git clone https://github.com/bluesky-sgao/entitlement
-        cd /root/entitlement
-        if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
-            tar -zxvf data/ldtp/ldtp.tar.gz; cd ldtp/; ./autogen.sh --prefix=/usr; make; make install
-        else
-            tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
-        fi
-        mkdir -p /root/.config/autostart
-        cat > /root/.config/autostart/gnome-terminal.desktop <<EOF
+        if [ "$REBOOTCOUNT" -eq 0 ] ; then
+            #configure for ldtp gui test
+            gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
+            gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false
+            gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false
+            gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0
+            if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
+                rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
+                yum -y install git
+            fi
+            cd /root
+            git clone https://github.com/bluesky-sgao/entitlement
+            cd /root/entitlement
+            if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
+                tar -zxvf data/ldtp/ldtp.tar.gz; cd ldtp/; ./autogen.sh --prefix=/usr; make; make install
+            else
+                tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
+            fi
+            mkdir -p /root/.config/autostart
+            cat > /root/.config/autostart/gnome-terminal.desktop <<EOF
 [Desktop Entry]
 Type=Application
 Exec=gnome-terminal -e ldtp
@@ -64,7 +65,6 @@ X-GNOME-Autostart-enabled=true
 Name=ldtpd
 Comment=
 EOF
-        if [ "$REBOOTCOUNT" -eq 0 ] ; then
             #for rhel 7, init 5 seems not work
             if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
                 rhts-reboot
