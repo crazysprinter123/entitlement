@@ -64,6 +64,12 @@ X-GNOME-Autostart-enabled=true
 Name=ldtpd
 Comment=
 EOF
+        if [ "$REBOOTCOUNT" -eq 0 ] ; then
+            #for rhel 7, init 5 seems not work
+            if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
+                rhts-reboot
+            fi
+        fi
         vncserver -SecurityTypes None
         chkconfig vncserver on; init 3; sleep 10; init 5
     rlPhaseEnd
