@@ -16,7 +16,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             # register to and auto-attach
             self.register_and_autosubscribe(username, password, autosubprod)
             # set rhsm.conf file to plain http
-            self.set_conf_plain()
+            self.set_conf_plain(RHSMConstants().samhostip)
             # install a pkg
             cmd = "yum install -y %s" % (pkgtoinstall)
             (ret, output) = self.runcmd(cmd, "install selected package %s" % pkgtoinstall)
@@ -33,7 +33,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
         finally:
             self.uninstall_givenpkg(pkgtoinstall)
             self.restore_repos()
-            self.restore_conf()
+            self.restore_conf(RHSMConstants().samhostip)
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
@@ -45,18 +45,18 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
         else:
             raise FailException("Test Failed - failed to register or auto-attach.")
 
-    def set_conf_plain(self):
-        cmd = "sed -i 's/baseurl= https:\/\/samserv.redhat.com:8088/baseurl= http:\/\/samserv.redhat.com:8088/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl"
+    def set_conf_plain(self, sam_server):
+        cmd = "sed -i 's/baseurl= https:\/\/%s:8088/baseurl= http:\/\/%s:8088/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" % (sam_server, sam_server)
         (ret, output) = self.runcmd(cmd, "set_conf_plain")
-        if ret == 0 and "baseurl= http://samserv.redhat.com:8088" in output:
+        if ret == 0 and "baseurl= http://%s:8088" % sam_server in output:
             logger.info("It's successful to set the rhsm.conf to plain http")
         else:
             raise FailException("Test Failed - failed to set the rhsm.conf to plain http")
 
-    def restore_conf(self):
-        cmd = "sed -i 's/baseurl= http:\/\/samserv.redhat.com:8088/baseurl= https:\/\/samserv.redhat.com:8088/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl"
+    def restore_conf(self, sam_server):
+        cmd = "sed -i 's/baseurl= http:\/\/%s:8088/baseurl= https:\/\/%s:8088/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" % (sam_server, sam_server)
         (ret, output) = self.runcmd(cmd, "set_conf_plain")
-        if ret == 0 and "baseurl= https://samserv.redhat.com:8088" in output:
+        if ret == 0 and "baseurl= https://%s:8088" % sam_server in output:
             logger.info("It's successful to restore the rhsm.conf")
         else:
             raise FailException("Test Failed - failed to restore the rhsm.conf")

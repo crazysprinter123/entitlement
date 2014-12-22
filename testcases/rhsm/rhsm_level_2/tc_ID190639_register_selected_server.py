@@ -13,7 +13,7 @@ class tc_ID190639_register_selected_server(RHSMBase):
             baseurl = RHSMConstants().get_constant("baseurl")
             samhostip = RHSMConstants().samhostip
             # register to sam candlepin server
-            if samhostip != None and baseurl == "https://samserv.redhat.com:443":
+            if samhostip != None:
                 serverurl = baseurl + '/sam/api'
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=ACME_Corporation" % (username, password, serverurl)
             # register to stage/product candlepin server

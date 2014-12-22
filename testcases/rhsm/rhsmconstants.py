@@ -61,6 +61,7 @@ class RHSMConstants(object):
     confs = None
     __instance = None
     samhostip = None
+    samhostname = None
     def __new__(cls):
         if cls.__instance is None:
             cls.__instance = super(RHSMConstants, cls).__new__(cls)
@@ -70,22 +71,22 @@ class RHSMConstants(object):
     def __init__(self):
         if(self.__initialized): return
         self.__initialized = True
-        # Just for debug in local
-#         self.confs = Configs(RHSM_CONF)
-#         self.server = self.confs._confs["server"]
-#         if self.server == "sam":
-#             self.configure_sam_host(self.confs._confs["samhostname"], self.confs._confs["samhostip"])
-#             self.samhostip = self.confs._confs["samhostip"]
-#         elif self.server == "stage":
-#             self.configure_stage_host(self.confs._confs["stage_name"])
-#         elif self.server == "candlepin":
-#             pass
+
         # Running in beaker
         self.server = self.get_delivered_param("RUN_SERVER")
         if self.server == "sam":
-            samhostip = self.get_delivered_param("SAM_IP")
-            samhostname = self.get_delivered_param("SAM_HOSTNAME")
-            self.configure_sam_host(samhostname, samhostip)
+            if self.get_delivered_param("SAM_IP") == "":
+                # Run by sam config file
+                self.confs = Configs(RHSM_CONF)
+                self.server = self.confs._confs["server"]
+                self.samhostip = self.confs._confs["samhostip"]
+                self.samhostname = self.confs._confs["samhostname"]
+                self.configure_sam_host(self.samhostname, self.samhostip)
+            else:
+                #Run by delivered param
+                self.samhostip = self.get_delivered_param("SAM_IP")
+                self.samhostname = self.get_delivered_param("SAM_HOSTNAME")
+                self.configure_sam_host(self.samhostname, self.samhostip)
         elif self.server == "stage":
             stage_name = self.get_delivered_param("STAGE_NAME")
             self.configure_stage_host(stage_name)
@@ -132,10 +133,13 @@ class RHSMConstants(object):
 
     def get_constant(self, name):
         if self.server == "sam":
-            if self.get_os_serials() == "6":
-                return self.sam_cons6[name]
-            elif self.get_os_serials() == "7":
-                return self.sam_cons7[name]
+            if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
+                return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
+            else:
+                if self.get_os_serials() == "6":
+                    return self.sam_cons6[name]
+                elif self.get_os_serials() == "7":
+                    return self.sam_cons7[name]
         elif self.server == "stage":
             return self.stage_cons[name]
         elif self.server == "candlepin":
