@@ -68,10 +68,12 @@ EOF
             #for rhel 7, init 5 seems not work
             if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
                 rhts-reboot
+            else
+                chkconfig vncserver on; init 3; sleep 10; init 5
             fi
         fi
         vncserver -SecurityTypes None
-        chkconfig vncserver on; init 3; sleep 10; init 5
+
     rlPhaseEnd
 
     rlPhaseStartTest
