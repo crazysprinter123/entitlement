@@ -19,13 +19,13 @@ class tc_ID178040_register_with_consumerID_and_other_account(RHSMBase):
             if samhostip == None:
                 logger.info("This case is just for SAM, no need to test against other servers!")
             else:
+                usernamenew = "test456"
+                passwordnew = "123456"
+                emailnew = "test456@redhat.com"
                 self.sub_register(username, password)
                 # record consumerid
                 consumerid = self.sub_get_consumerid()
                 # create a new account from SAM server
-                usernamenew = "test456"
-                passwordnew = "123456"
-                emailnew = "test456@redhat.com"
                 self.create_sam_account(samhostip, usernamenew, passwordnew, emailnew)
                 # clean client data
                 cmd_clean = "subscription-manager clean"

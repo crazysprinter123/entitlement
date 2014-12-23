@@ -286,7 +286,7 @@ class RHSMBase(unittest.TestCase):
         if self.sub_isregistered():
             cmd = "subscription-manager identity"
             (ret, output) = self.runcmd(cmd, "get consumerid")
-            if ret == 0 and "system identity:" in output:
+            if ret == 0 and ("system identity:" in output or "Current identity" in output):
                 consumerid_gain = output.split('\n')
                 consumerid_line_split = (consumerid_gain[0]).split(":")
                 consumerid = (consumerid_line_split[1]).strip()
