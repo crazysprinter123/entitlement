@@ -7,6 +7,7 @@ from beaker.bkvirtwhokvm import BKvirtwhoKVM
 from beaker.bkvirtwhoesx import BKvirtwhoESX
 from beaker.bkvirtwhoxenfv import BKvirtwhoXENFV
 from beaker.bkvirtwhoxenpv import BKvirtwhoXENPV
+from utils import *
 
 class AllInOne():
 
@@ -27,6 +28,22 @@ class AllInOne():
             BKvirtwhoESX().start(build, sam_build, sam_server)
             BKvirtwhoXENFV().start(build, sam_build, sam_server)
             BKvirtwhoXENPV().start(build, sam_build, sam_server)
+            self.set_mail_trigger("True")
+        else:
+            self.set_mail_trigger("False")
+
+    def set_mail_trigger(self, triggered):
+        trigger_file_path = "/var/lib/jenkins/email-templates"
+        if not os.path.exists(trigger_file_path):
+            os.makedirs(trigger_file_path)
+        trigger_file_name = "mail_trigger.template"
+        trigger_file = os.path.join(trigger_file_path, trigger_file_name)
+        fileHandler = os.open(trigger_file, os.O_RDWR | os.O_CREAT)
+        try:
+            os.write(fileHandler, triggered)
+        finally:
+            os.close(fileHandler)
 
 if __name__ == "__main__":
     AllInOne().start()
+#     AllInOne().set_mail_trigger("True")
