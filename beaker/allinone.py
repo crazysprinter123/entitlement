@@ -8,6 +8,7 @@ from beaker.bkvirtwhoesx import BKvirtwhoESX
 from beaker.bkvirtwhoxenfv import BKvirtwhoXENFV
 from beaker.bkvirtwhoxenpv import BKvirtwhoXENPV
 from utils import *
+from utils.constants import RUNTIME_PATH
 
 class AllInOne():
 
@@ -33,11 +34,10 @@ class AllInOne():
             self.set_mail_trigger("false")
 
     def set_mail_trigger(self, triggered):
-        trigger_file_path = "/var/lib/jenkins/email-templates"
-        if not os.path.exists(trigger_file_path):
-            os.makedirs(trigger_file_path)
-        trigger_file_name = "mail_trigger.template"
-        trigger_file = os.path.join(trigger_file_path, trigger_file_name)
+        if not os.path.exists(RUNTIME_PATH):
+            os.makedirs(RUNTIME_PATH)
+        trigger_file_name = "mail_trigger"
+        trigger_file = os.path.join(RUNTIME_PATH, trigger_file_name)
         fileHandler = os.open(trigger_file, os.O_RDWR | os.O_CREAT)
         try:
             os.write(fileHandler, triggered)
