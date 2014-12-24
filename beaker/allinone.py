@@ -28,9 +28,9 @@ class AllInOne():
             BKvirtwhoESX().start(build, sam_build, sam_server)
             BKvirtwhoXENFV().start(build, sam_build, sam_server)
             BKvirtwhoXENPV().start(build, sam_build, sam_server)
-            self.set_mail_trigger("True")
+            self.set_mail_trigger("true")
         else:
-            self.set_mail_trigger("False")
+            self.set_mail_trigger("false")
 
     def set_mail_trigger(self, triggered):
         trigger_file_path = "/var/lib/jenkins/email-templates"
@@ -46,4 +46,4 @@ class AllInOne():
 
 if __name__ == "__main__":
     AllInOne().start()
-#     AllInOne().set_mail_trigger("True")
+#     AllInOne().set_mail_trigger("true")
