@@ -38,7 +38,7 @@ class AllInOne():
             os.makedirs(RUNTIME_PATH)
         trigger_file_name = "mail_trigger"
         trigger_file = os.path.join(RUNTIME_PATH, trigger_file_name)
-        fileHandler = os.open(trigger_file, os.O_RDWR | os.O_CREAT)
+        fileHandler = os.open(trigger_file, os.O_RDWR | os.O_TRUNC | os.O_CREAT)
         try:
             os.write(fileHandler, triggered)
         finally:
