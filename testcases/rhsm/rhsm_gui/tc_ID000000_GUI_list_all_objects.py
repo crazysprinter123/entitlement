@@ -11,6 +11,8 @@ class tc_ID000000_GUI_list_all_objects(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
+                username = RHSMConstants().get_constant("username")
+                password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
                 self.list_objects("main-window")
                 self.assert_(True, case_name)
