@@ -43,6 +43,8 @@ rlJournalStart
             gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false
             gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false
             gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0
+            rm -f /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
+            rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
             if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
                 rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
                 yum -y install git
@@ -65,16 +67,17 @@ X-GNOME-Autostart-enabled=true
 Name=ldtpd
 Comment=
 EOF
-            #for rhel 7, init 5 seems not work
+            #for rhel 7, init 5 does not work
             if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
                 rhts-reboot
             else
-                chkconfig vncserver on; init 3; sleep 10; init 5
+                init 3; sleep 10; init 5
             fi
         fi
         gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
+        #for rhel 7, need reboot completed, sleep 2 minutes
+        sleep 120
         vncserver -SecurityTypes None
-
     rlPhaseEnd
 
     rlPhaseStartTest
@@ -90,9 +93,6 @@ EOF
                 rhts-report-result $i FAIL runtime/result/default/runtime.log
             fi
         done
-    rlPhaseEnd
-
-    rlPhaseStartCleanup
     rlPhaseEnd
 rlJournalPrintText
 rlJournalEnd

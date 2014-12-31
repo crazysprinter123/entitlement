@@ -24,7 +24,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 export TEST=/installation/entitlement-qa/Regression/rhsm-gui
-export TESTVERSION=1.26
+export TESTVERSION=1.34
 
 BUILT_FILES=
 
