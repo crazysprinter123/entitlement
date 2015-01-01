@@ -47,7 +47,8 @@ rlJournalStart
             git clone https://github.com/bluesky-sgao/entitlement
             cd /root/entitlement
             tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
-            gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
+            #gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
+            export GNOME_ACCESSIBILITY=1
         else
             #configure for ldtp gui test
             gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
