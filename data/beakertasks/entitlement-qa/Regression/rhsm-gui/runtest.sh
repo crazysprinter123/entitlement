@@ -37,14 +37,31 @@ export AVC_ERROR=+no_avc_check
 
 rlJournalStart
     rlPhaseStartSetup
-        if [ "$REBOOTCOUNT" -eq 0 ] ; then
+        if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
+            if [ "$REBOOTCOUNT" -eq 0 ] ; then
+                rm -f /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
+                rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
+                tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
+                mkdir -p /root/.config/autostart
+                cat > /root/.config/autostart/gnome-terminal.desktop <<EOF
+[Desktop Entry]
+Type=Application
+Exec=gnome-terminal -e ldtp
+Hidden=false
+X-GNOME-Autostart-enabled=true
+Name=ldtpd
+Comment=
+EOF
+                rhts-reboot
+            fi
+            setenforce 0
+            export AVC_ERROR=+no_avc_check
+        else
             #configure for ldtp gui test
             gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
             gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false
             gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false
             gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0
-            rm -f /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
-            rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
             if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -le 5 ]; then
                 rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
                 yum -y install git
@@ -67,16 +84,8 @@ X-GNOME-Autostart-enabled=true
 Name=ldtpd
 Comment=
 EOF
-            #for rhel 7, init 5 does not work
-            if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
-                rhts-reboot
-            else
-                init 3; sleep 10; init 5
-            fi
+            init 3; sleep 10; init 5
         fi
-        gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
-        #for rhel 7, need reboot completed, sleep 2 minutes
-        sleep 120
         vncserver -SecurityTypes None
     rlPhaseEnd
 
