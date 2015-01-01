@@ -38,17 +38,18 @@ export AVC_ERROR=+no_avc_check
 rlJournalStart
     rlPhaseStartSetup
         if [ `uname -r | awk -F "el" '{print substr($2,1,1)}'` -eq 7 ] ; then
-            if [ "$REBOOTCOUNT" -eq 0 ] ; then
-                rm -f /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
-                rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
-                rhts-reboot
-            fi
+            #if [ "$REBOOTCOUNT" -eq 0 ] ; then
+                #rm -f /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
+                #rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
+                #rhts-reboot
+            #fi
             cd /root
             git clone https://github.com/bluesky-sgao/entitlement
             cd /root/entitlement
-            tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
+            git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install
+            #tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
             #gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
-            export GNOME_ACCESSIBILITY=1
+            #export GNOME_ACCESSIBILITY=1
         else
             #configure for ldtp gui test
             gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
