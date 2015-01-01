@@ -45,16 +45,6 @@ rlJournalStart
                 git clone https://github.com/bluesky-sgao/entitlement
                 cd /root/entitlement
                 tar -zxvf data/ldtp/ldtp-3.0.0.tar.gz; cd ldtp2/; python setup.py build; python setup.py install
-                mkdir -p /root/.config/autostart
-                cat > /root/.config/autostart/gnome-terminal.desktop <<EOF
-[Desktop Entry]
-Type=Application
-Exec=gnome-terminal -e ldtp
-Hidden=false
-X-GNOME-Autostart-enabled=true
-Name=ldtpd
-Comment=
-EOF
                 rhts-reboot
             fi
             setenforce 0
