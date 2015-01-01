@@ -43,6 +43,9 @@ rlJournalStart
                 #rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
                 #rhts-reboot
             #fi
+            yum -y install Xvfb
+            Xvfb :2 -screen 0 1024x768x24 -ac -noreset -v -fbdir /tmp/
+            export DISPLAY=localhost:2
             cd /root
             git clone https://github.com/bluesky-sgao/entitlement
             cd /root/entitlement
