@@ -44,7 +44,7 @@ rlJournalStart
                 #rhts-reboot
             #fi
             yum -y install Xvfb
-            Xvfb :2 -screen 0 1024x768x24 -ac -noreset -v -fbdir /tmp/
+            nohup Xvfb :2 -screen 0 1024x768x24 -ac -noreset -v -fbdir /tmp/ > /dev/null &
             export DISPLAY=localhost:2
             cd /root
             git clone https://github.com/bluesky-sgao/entitlement
