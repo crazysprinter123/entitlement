@@ -176,7 +176,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def click_ImportCertificate_button(self):
         logger.info("click_ImportCertificate_menu")
-        self.click_menu("main-window", "ImportCertificate-menu")
+        self.click_menu("main-window", "importcert-menu")
         self.check_window_exist("import-cert-dialog")
 
 #     def click_Certificate_Location(self):
@@ -445,6 +445,8 @@ class RHSMGuiBase(unittest.TestCase):
             logger.info("It's successful to get org %s by CML" % org_in_cml)
         else:
             raise FailException("Test Failed - Failed to get org by CML.")
+        # current we can not get orgs label, instead we got "lblOrganizationValue"
+        org_in_cml = "OrganizationValue"
         if self.check_element_exist("system-facts-dialog", "lbl", org_in_cml):
             logger.info("It's successful to get org %s in system facts" % org_in_cml)
         else:

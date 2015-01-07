@@ -166,9 +166,8 @@ class RHSMGuiLocator(object):
     '6.4-menu':                             'mnu64',
     '6.5-menu':                             'mnu65',
     '6server-menu':                         'mnu6Server',
-    # import cert
-    'ImportCertificate-menu':                'mnuImportCert',
-
+    # import cert, certificates select menu
+    'certificate-menu':                     'mnuCertificates',
     ######## Checkbox Element ########
     'manual-attach-checkbox':                'chkautobind',
     'proxy-checkbox':                        'chkProxyCheckbox',

@@ -16,6 +16,11 @@ class tc_ID115139_GUI_list_available_pools(RHSMGuiBase):
                 self.open_subscription_manager()
                 self.register_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()
+                self.click_filters_button()
+                self.uncheck_checkbox("filter-options-window", "match-installed-checkbox")
+                self.uncheck_checkbox("filter-options-window", "match-system-checkbox")
+                self.uncheck_checkbox("filter-options-window", "do-not-overlap-checkbox")
+                self.click_filter_close_button()
                 self.click_update_button()
                 # check sub_listavailpools are all shown in gui
                 productid = RHSMConstants().get_constant("productid")
