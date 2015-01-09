@@ -173,6 +173,7 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_exist("question-dialog")
         self.click_button("question-dialog", "yes-button")
         self.check_window_closed("question-dialog")
+        time.sleep(20)
 
     def click_ImportCertificate_button(self):
         logger.info("click_ImportCertificate_menu")

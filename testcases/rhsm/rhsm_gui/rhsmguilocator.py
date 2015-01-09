@@ -155,7 +155,9 @@ class RHSMGuiLocator(object):
     'none-menu':                             'mnuNone',
     'premium-menu':                          'mnuPremium',
     'standard-menu':                         'mnuStandard',
+    'standard-menu-7':                       'mnuSTANDARD',
     'self-support-menu':                     'mnuSelf-Support',
+    'self-support-menu-7':                   'mnuSELF-SUPPORT',
     'layered-menu':                          'mnuLayered',
 
     # release version menu
@@ -165,7 +167,9 @@ class RHSMGuiLocator(object):
     '6.3-menu':                             'mnu63',
     '6.4-menu':                             'mnu64',
     '6.5-menu':                             'mnu65',
+    '7.0-menu':                             'mnu70',
     '6server-menu':                         'mnu6Server',
+    '7server-menu':                         'mnu7Server',
     # import cert, certificates select menu
     'certificate-menu':                     'mnuCertificates',
     ######## Checkbox Element ########
