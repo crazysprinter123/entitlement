@@ -14,12 +14,9 @@ class tc_ID190638_GUI_server_selection_when_register(RHSMGuiBase):
                 username = RHSMConstants().get_constant("username")
                 password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
-                samhostname = RHSMConstants().server
+                samhostname = RHSMConstants().samhostname
+                server_url = samhostname + ":443" + "/sam/api"
                 self.click_register_button()
-                if samhostname == "sam":
-                    server_url = "samserv.redhat.com" + ":443" + "/sam/api"
-                else:
-                    server_url = self.get_hostname() + ":443" + "/subscription"
                 if self.check_server_url(server_url):
                     logger.info("It's successful to display server url %s" % server_url)
                 else:
