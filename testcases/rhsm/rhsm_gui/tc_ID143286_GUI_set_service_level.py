@@ -16,13 +16,16 @@ class tc_ID143286_GUI_set_service_level(RHSMGuiBase):
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_preferences_menu()
-                self.click_menu("system-preferences-dialog", "premium-menu")
+                if self.select_combo_item("system-preferences-dialog", "service-level-combobox", "PREMIUM"):
+                    logger.info("It's successful to set_service_level as PREMIUM.")
+                else:
+                    raise FailException("Test Faild - Failed to set_service_level as PREMIUM!")
                 self.click_close_button()
                 self.click_preferences_menu()
-                if self.check_menu_enabled("system-preferences-dialog", "premium-menu"):
-                    logger.info("It's successful to set_service_level.")
+                if self.check_combo_item_selected("system-preferences-dialog", "service-level-combobox", "premium-menu"):
+                    logger.info("It's successful to set_service_level after reopen preferences dialog.")
                 else:
-                    raise FailException("Test Faild - Failed to set_service_level!")
+                    raise FailException("Test Faild - Failed to set_service_level after reopen preferences dialog!")
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))

@@ -17,13 +17,16 @@ class tc_ID155110_GUI_set_release_for_system(RHSMGuiBase):
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_preferences_menu()
                 for item in self.get_available_release():
-                    self.click_menu("system-preferences-dialog", item.lower() + "-menu")
+                    if self.select_combo_item("system-preferences-dialog", "release-version-combobox", item):
+                        logger.info("It's successful to set_release_for_system as %s." % item)
+                    else:
+                        raise FailException("Test Faild - Failed to set_release_for_system as %s." % item)
                     self.click_close_button()
                     self.click_preferences_menu()
-                    if self.check_object_exist("system-preferences-dialog", item.lower() + "-menu"):
-                        logger.info("It's successful to set release %s." % item.lower())
+                    if self.check_combo_item_selected("system-preferences-dialog", "release-version-combobox", item):
+                        logger.info("It's successful to set_release_for_system as %s after reopen preferences dialog." % item)
                     else:
-                        raise FailException("Test Faild - Failed to set release %s." % item.lower())
+                        raise FailException("Test Faild - Failed to set_release_for_system as %s after reopen preferences dialog." % item)
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))

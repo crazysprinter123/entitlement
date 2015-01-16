@@ -497,9 +497,14 @@ class RHSMGuiBase(unittest.TestCase):
         # ldtp.verifyshowlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
         return item_name in ldtp.getallitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
 
+    def select_combo_item(self, window, combobox, item_name):
+        logger.info("select_combo_item")
+        ldtp.wait(10)
+        return ldtp.selectitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox), item_name)
+
     def check_combo_item_selected(self, window, combobox, item_name):
         logger.info("check_combo_item_selected")
-        ldtp.wait(5)
+        ldtp.wait(10)
         return ldtp.verifyselect(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox), item_name)
 
     def check_object_status(self, window, object_name, status):
