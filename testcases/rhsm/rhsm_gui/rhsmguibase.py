@@ -491,6 +491,17 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("check_menu_enabled")
         return ldtp.menuitemenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
 
+    def check_combo_item(self, window, combobox, item_name):
+        logger.info("check_combo_item")
+        ldtp.wait(10)
+        # ldtp.verifyshowlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
+        return item_name in ldtp.getallitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
+
+    def check_combo_item_selected(self, window, combobox, item_name):
+        logger.info("check_combo_item_selected")
+        ldtp.wait(5)
+        return ldtp.verifyselect(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox), item_name)
+
     def check_object_status(self, window, object_name, status):
         if status == "ENABLED":
             real_status = ldtp.state.ENABLED
@@ -822,6 +833,7 @@ class RHSMGuiBase(unittest.TestCase):
                 raise FailException("Failed to check certificate files in /etc/pki/entitlement")
 
     def get_service_level_menu(self):
+        # bolished due to GUI change
         cmd = "subscription-manager service-level --show"
         (result, output) = Command().run(cmd)
         if result == 0:
@@ -831,6 +843,17 @@ class RHSMGuiBase(unittest.TestCase):
                 service_level_menu = output.split(":")[1].strip().lower() + "-menu"
             logger.info("It's successful to get current service level menu by cmd: %s." % service_level_menu)
             return service_level_menu
+        else:
+            raise FailException("Test Failed - Failed to get current service level by cmd.")
+
+    def get_service_level(self):
+        cmd = "subscription-manager service-level --show"
+        (result, output) = Command().run(cmd)
+        if result == 0:
+            if "Current service level:" in output:
+                service_level = output.split(":")[1].strip(" ")
+                logger.info("It's successful to get current service level by cmd: %s." % service_level)
+                return service_level
         else:
             raise FailException("Test Failed - Failed to get current service level by cmd.")
 

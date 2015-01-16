@@ -16,8 +16,9 @@ class tc_ID143285_GUI_display_current_service_level(RHSMGuiBase):
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_preferences_menu()
-#                 get service-level by cmd line
-                if self.check_menu_enabled("system-preferences-dialog", self.get_service_level_menu()):
+                # get service-level by cmd line
+                if self.check_combo_item("system-preferences-dialog", "service-level-combobox", self.get_service_level()):
+                # if self.check_combo_item_selected("system-preferences-dialog", "service-level-combobox", self.get_service_level()):
                     logger.info("It's successful to display current service level.")
                 else:
                     raise FailException("Test Faild - Failed to display current service level!")
