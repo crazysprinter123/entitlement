@@ -5,8 +5,8 @@ import os
 from utils import logger
 from utils.tools.shell.command import Command
 
-manifest_name = "sam_install_manifest.zip"
-sam_manifest = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, "data/manifest/%s" % manifest_name))
+# manifest_name = "sam_install_manifest.zip"
+# sam_manifest = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, "data/manifest/%s" % manifest_name))
 
 class SAMCommand(Command):
 
@@ -68,11 +68,13 @@ class SAMCommand(Command):
     def __import_manifest(self):
         # only support remote run
         self.__upload_manifest()
-        cmd = "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/%s" % manifest_name
+        cmd = "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/sam_install_manifest.zip"
         self.run(cmd)
 
     def __upload_manifest(self):
-        self.remote_put(sam_manifest, "/root/%s" % manifest_name)
+        # self.remote_put(sam_manifest, "/root/%s" % manifest_name)
+        cmd = "wget http://10.66.100.116/projects/sam-virtwho/latest-manifest/sam_install_manifest.zip -P /root/"
+        self.run(cmd)
 
 if __name__ == "__main__":
     sam_command = SAMCommand("10.66.128.31", "root", "redhat")

@@ -4,50 +4,41 @@ Use virsh API to manipulate vms
 import utils.constants, os, time
 from utils import logger
 from utils.tools.shell.command import Command
+from utils.exception.failexception import FailException
 
 class VirshCommand(Command):
 
-    def create_vm(self, guest_name):
+    def create_vm(self, guest_name, guest_compose):
 #         self.__create_storage()
 #         self.__create_img(guest_name)
-        self.__unattended_install(guest_name)
+        self.__unattended_install(guest_name, guest_compose)
+        return self.__check_vm_available(guest_name), "root", "redhat"
+
+    def start_vm(self, guest_name):
+        cmd = "virsh start %s" % (guest_name)
+        self.run(cmd, timeout=None)
         return self.__check_vm_available(guest_name)
 
-    def __check_vm_available(self, guest_name, timeout=600):
-        terminate_time = time.time() + timeout
-        while True:
-            guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
-            if guestip != "":
-                return guestip
-            if terminate_time < time.time():
-                raise OSError("Process timeout has been reached")
-            logger.debug("Check guest IP, wait 1 minute ...")
-            time.sleep(60)
-
-    def find_vm(self, guest_name):
-        # Get guest IP
-        guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
-        return guestip
-
-    def define_vm(self):
-        pass
-    
-    def clone_vm(self):
-        pass
-
-    def __create_img(self, img_name, path="/home/auto-imgs/", size=20):
-        cmd = "qemu-img create -f raw %s%s.img %sG" % (path, img_name, size)
+    def shutdown_vm(self, guest_name):
+        cmd = "virsh shutdown %s" % (guest_name)
         self.run(cmd, timeout=None)
 
-    def __create_storage(self, path="/home/auto-imgs/"):
-        cmd = "mkdir -p %s" % path
+    def clone_vm(self, guest_name, cloned_guest_name):
+        cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s" % (guest_name, cloned_guest_name, cloned_guest_name)
         self.run(cmd, timeout=None)
 
-    def __unattended_install(self, guest_name):
+#     def get_vm_ip(self, guest_name):
+#         # Get guest IP
+#         guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
+#         return guestip
+
+    def __unattended_install(self, guest_name, guest_compose):
         '''
         install a guest with virt-install command, need virt-install tool installed:
         can not quite normally, check ip to make sure guest installed temperatelly
         '''
+        self.__create_storage()
+        self.__create_img(guest_name)
         cmd = ('virt-install '
 #                '--network=bridge:br0 '
                '--initrd-inject=/root/workspace/entitlement/data/kickstart/unattended/rhel-server-6-series.ks '
@@ -59,10 +50,22 @@ class VirshCommand(Command):
                '--check-cpu '
                '--accelerate '
                '--hvm '
-               '--location=http://download.englab.nay.redhat.com/pub/rhel/released/RHEL-6/6.5/Server/x86_64/os/ '
+               '--location=%s '
 #                 '--nographics '
-               % (guest_name, guest_name))
+               % (guest_name, guest_name, guest_compose))
         self.run(cmd, timeout=600)
+        time.sleep(120)
+
+    def __check_vm_available(self, guest_name, timeout=600):
+        terminate_time = time.time() + timeout
+        while True:
+            guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
+            if guestip != "" :
+                return guestip
+            if terminate_time < time.time():
+                raise OSError("Process timeout has been reached")
+            logger.debug("Check guest IP, wait 1 minute ...")
+            time.sleep(60)
 
     def __get_dom_mac_addr(self, domname):
         """
@@ -78,14 +81,24 @@ class VirshCommand(Command):
 
     def __mac_to_ip(self, mac):
         """
-        Map mac address to ip
+        Map mac address to ip, need nmap installed and ipget.sh in /root/ target machine
         Return None on FAILURE and the mac address on SUCCESS
         """
         if not mac:
-            return None
-        cmd = "sh " + os.path.realpath(os.path.join(os.path.dirname(__file__), "ipget.sh ")) + mac
+            raise FailException("Failed to get guest mac ...")
+        generate_ipget_cmd = "wget http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ | chmod 777 /root/ipget.sh"
+        self.run(generate_ipget_cmd)
+        cmd = "sh /root/ipget.sh %s" % mac
         (ret, out) = self.run(cmd)
         return out.strip("\n").strip(" ")
+
+    def __create_img(self, img_name, path="/home/auto-imgs/", size=20):
+        cmd = "qemu-img create -f raw %s%s.img %sG" % (path, img_name, size)
+        self.run(cmd, timeout=None)
+ 
+    def __create_storage(self, path="/home/auto-imgs/"):
+        cmd = "mkdir -p %s" % path
+        self.run(cmd, timeout=None)
 
 if __name__ == "__main__":
     virsh_command = VirshCommand()
