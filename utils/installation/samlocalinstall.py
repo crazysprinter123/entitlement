@@ -7,7 +7,7 @@ class SAMLocalInstall():
     '''
     default_rhel_build = "http://download.englab.nay.redhat.com/pub/rhel/released/RHEL-6/6.6/Server/x86_64/os/"
     def install_host(self):
-        host_ip = "10.66.129.148"
+        host_ip = "10.66.129.67"
         host_user = "root"
         host_passwd = "redhat"
         return host_ip, host_user, host_passwd
@@ -44,4 +44,5 @@ class SAMLocalInstall():
 #         self.clone_sam_guest(host_ip, host_user, host_passwd, sam_compose)
 
 if __name__ == "__main__":
-    SAMLocalInstall().start("SAM-1.4.1-RHEL-6-20141113.0")
+#     SAMLocalInstall().start("SAM-1.4.1-RHEL-6-20141113.0")
+    SAMLocalInstall().start("SAM-1.4.1-RHEL-6-20141009.0") 

@@ -9,10 +9,14 @@ from utils.exception.failexception import FailException
 class VirshCommand(Command):
 
     def create_vm(self, guest_name, guest_compose):
-#         self.__create_storage()
-#         self.__create_img(guest_name)
-        self.__unattended_install(guest_name, guest_compose)
-        return self.__check_vm_available(guest_name), "root", "redhat"
+        self.__create_storage()
+#         self.__unattended_install(guest_name, guest_compose)
+#         return self.__check_vm_available(guest_name), "root", "redhat"
+        # here user virt-clone to get a sam guest
+        # you need to install a "RHEL6.6-Server-GA-AUTO" guest manually first
+        # modify eth0, remove HWADDR and UUID, or else you will be failed to get dhcp IP
+        self.clone_vm("RHEL-6.5-GA", guest_name)
+        return self.start_vm(guest_name), "root", "redhat"
 
     def start_vm(self, guest_name):
         cmd = "virsh start %s" % (guest_name)
@@ -24,7 +28,7 @@ class VirshCommand(Command):
         self.run(cmd, timeout=None)
 
     def clone_vm(self, guest_name, cloned_guest_name):
-        cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s" % (guest_name, cloned_guest_name, cloned_guest_name)
+        cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s.img" % (guest_name, cloned_guest_name, cloned_guest_name)
         self.run(cmd, timeout=None)
 
 #     def get_vm_ip(self, guest_name):
@@ -37,12 +41,13 @@ class VirshCommand(Command):
         install a guest with virt-install command, need virt-install tool installed:
         can not quite normally, check ip to make sure guest installed temperatelly
         '''
-        self.__create_storage()
-        self.__create_img(guest_name)
+        # self.__create_storage()
+        # self.__create_img(guest_name)
+        self.remote_put("/root/workspace/entitlement/data/kickstart/unattended/minimal.ks", "/root/minimal.ks")
         cmd = ('virt-install '
 #                '--network=bridge:br0 '
-               '--initrd-inject=/root/workspace/entitlement/data/kickstart/unattended/rhel-server-6-series.ks '
-               '--extra-args "ks=file:/rhel-server-6-series.ks" '
+               '--initrd-inject=/root/minimal.ks '
+               '--extra-args "ks=file:/minimal.ks" '
                '--name=%s '
                '--disk path=/home/auto-imgs/%s.img,size=20 '
                '--ram 2048 '
@@ -53,6 +58,8 @@ class VirshCommand(Command):
                '--location=%s '
 #                 '--nographics '
                % (guest_name, guest_name, guest_compose))
+#         from utils.tools.shell.remotesh import RemoteSH
+#         RemoteSH.run_pexpect(cmd, self.remote_ip, "root", "redhat")
         self.run(cmd, timeout=600)
         time.sleep(120)
 
