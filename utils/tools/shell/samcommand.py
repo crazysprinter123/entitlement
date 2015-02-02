@@ -42,7 +42,7 @@ class SAMCommand(Command):
         self.run(cmd)
 
     def __auto_subscribe(self):
-        cmd = "subscription-manager register --username=qa@redhat.com --password=HWj8TE28Qi0eP2c --auto-attach"
+        cmd = "subscription-manager register --username=qa@redhat.com --password=AC7YeKvJ7j8ZPu8 --auto-attach"
         self.run(cmd)
 
     def __add_sam_repo(self, sam_compose):

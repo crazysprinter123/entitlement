@@ -19,6 +19,7 @@ class AllInOne():
             # run stage testing only new rhel comes
             if new_rhel == 0:
                 BKRHSMSTAGELEVEL1().start(build)
+                BKRHSMSTAGELEVEL2().start(build)
             # if no sam new build, install the latest one
             if new_sam == -1:
                 new_sam, sam_build, sam_server = BKSAMInstall().start(sam_build)
