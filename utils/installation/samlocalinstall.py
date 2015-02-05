@@ -36,12 +36,13 @@ class SAMLocalInstall():
         virsh_command.clone_vm(guest_name, guest_name + "-intergration")
         sam_virtwho_ip = virsh_command.start_vm(guest_name, guest_name + "-virt-who")
         sam_intergration_ip = virsh_command.start_vm(guest_name, guest_name + "-intergration")
+        print sam_virtwho_ip, sam_intergration_ip
 
     def start(self, sam_compose):
         host_ip, host_user, host_passwd = self.install_host()
         guest_ip, guest_user, guest_passwd = self.install_guest(host_ip, host_user, host_passwd, sam_compose)
         self.install_product(guest_ip, guest_user, guest_passwd, sam_compose)
-#         self.clone_sam_guest(host_ip, host_user, host_passwd, sam_compose)
+        self.clone_sam_guest(host_ip, host_user, host_passwd, sam_compose)
 
 if __name__ == "__main__":
 #     SAMLocalInstall().start("SAM-1.4.1-RHEL-6-20141113.0")
