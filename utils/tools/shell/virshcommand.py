@@ -15,7 +15,7 @@ class VirshCommand(Command):
         # here user virt-clone to get a sam guest
         # you need to install a "RHEL6.6-Server-GA-AUTO" guest manually first
         # modify eth0, remove HWADDR and UUID, or else you will be failed to get dhcp IP
-        self.clone_vm("RHEL6.6-Server-GA-AUTO", guest_name)
+        self.clone_vm("AUTO-RHEL6.6-Server-GA", guest_name)
         return self.start_vm(guest_name), "root", "redhat"
 
     def start_vm(self, guest_name):
@@ -67,7 +67,7 @@ class VirshCommand(Command):
         terminate_time = time.time() + timeout
         while True:
             guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
-            if guestip != "" :
+            if guestip != "" and (not "can not get ip by mac" in guestip):
                 return guestip
             if terminate_time < time.time():
                 raise OSError("Process timeout has been reached")
