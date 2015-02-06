@@ -34,8 +34,8 @@ class SAMLocalInstall():
         virsh_command.shutdown_vm(guest_name)
         virsh_command.clone_vm(guest_name, guest_name + "-virt-who")
         virsh_command.clone_vm(guest_name, guest_name + "-intergration")
-        sam_virtwho_ip = virsh_command.start_vm(guest_name, guest_name + "-virt-who")
-        sam_intergration_ip = virsh_command.start_vm(guest_name, guest_name + "-intergration")
+        sam_virtwho_ip = virsh_command.start_vm(guest_name + "-virt-who")
+        sam_intergration_ip = virsh_command.start_vm(guest_name + "-intergration")
         print sam_virtwho_ip, sam_intergration_ip
 
     def start(self, sam_compose):

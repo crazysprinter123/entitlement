@@ -59,7 +59,7 @@ class SAMCommand(Command):
     def __install_katello(self):
         cmd = "yum install -y katello-headpin-all"
         # cmd = "yum install -y git"
-        self.run(cmd, timeout=3600)
+        self.run(cmd, timeout=7200)
 
     def __deploy_sam(self):
         cmd = "katello-configure --deployment=sam --user-pass=admin"
