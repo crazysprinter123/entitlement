@@ -32,11 +32,6 @@ class VirshCommand(Command):
         cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s.img" % (guest_name, cloned_guest_name, cloned_guest_name)
         self.run(cmd, timeout=None)
 
-#     def get_vm_ip(self, guest_name):
-#         # Get guest IP
-#         guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
-#         return guestip
-
     def __unattended_install(self, guest_name, guest_compose):
         '''
         install a guest with virt-install command, need virt-install tool installed:
@@ -111,6 +106,3 @@ class VirshCommand(Command):
 if __name__ == "__main__":
     virsh_command = VirshCommand()
     print virsh_command.create_vm("AUTO-SAM-1.4.0-RHEL-6-20140512.0")
-    pass
-# "virt-clone --connect=qemu:///system -o srchost -n newhost -f /path/to/newhost.qcow2"
-

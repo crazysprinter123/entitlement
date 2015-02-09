@@ -1,5 +1,6 @@
 from utils import *
 from utils.installation.samlocalinstall import SAMLocalInstall
+from utils.installation.samslaveinstall import SAMSlaveInstall
 
 class Test_SAM_Local_Install(unittest.TestCase):
 
@@ -11,7 +12,7 @@ class Test_SAM_Local_Install(unittest.TestCase):
         pass
 
     def testName(self):
-        SAMLocalInstall().start()
+        SAMSlaveInstall().start()
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
