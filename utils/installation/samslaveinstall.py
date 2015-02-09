@@ -18,8 +18,8 @@ class SAMSlaveInstall():
         sam_command = SAMCommand(guest_ip, guest_user, guest_passwd)
         sam_command.install_sam(sam_compose)
 
-    def clone_sam_guest(self, host_ip, host_user, host_passwd, guest_name):
-        virsh_command = VirshCommand(host_ip, host_user, host_passwd)
+    def clone_sam_guest(self, guest_name):
+        virsh_command = VirshCommand()
         virsh_command.shutdown_vm(guest_name)
         virsh_command.clone_vm(guest_name, guest_name + "-virt-who")
         virsh_command.clone_vm(guest_name, guest_name + "-intergration")
