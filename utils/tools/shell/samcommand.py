@@ -42,7 +42,22 @@ class SAMCommand(Command):
         self.run(cmd)
 
     def __auto_subscribe(self):
-        cmd = "subscription-manager register --username=qa@redhat.com --password=AC7YeKvJ7j8ZPu8 --auto-attach"
+        # too slow for local install, add rhel repo instead
+#         cmd = "subscription-manager register --username=qa@redhat.com --password=AC7YeKvJ7j8ZPu8 --auto-attach"
+#         self.run(cmd)
+        cmd = ('cat <<EOF > /etc/yum.repos.d/myrhel.repo\n'
+            '[rhel]\n'
+            'name=rhel\n'
+            'baseurl=http://download.englab.nay.redhat.com/pub/rhel/released/RHEL-6/6.6/Server/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            '[rhel-optional]\n'
+            'name=rhel-optional\n'
+            'baseurl=http://download.englab.nay.redhat.com/pub/rhel/released/RHEL-6/6.6/Server/optional/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            'EOF'
+            )
         self.run(cmd)
 
     def __add_sam_repo(self, sam_compose):
