@@ -26,6 +26,8 @@ class SAMCommand(Command):
         self.run(cmd)
         cmd = "chkconfig iptables off"
         self.run(cmd)
+        cmd = "service iptables save"
+        self.run(cmd)
 
     def __set_selinux(self):
         cmd = "setenforce 0"
