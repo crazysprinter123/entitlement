@@ -26,7 +26,7 @@ class VirshCommand(Command):
     def shutdown_vm(self, guest_name):
         cmd = "virsh shutdown %s" % (guest_name)
         self.run(cmd, timeout=None)
-        time.sleep(60)
+        time.sleep(180)
 
     def clone_vm(self, guest_name, cloned_guest_name):
         cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s.img" % (guest_name, cloned_guest_name, cloned_guest_name)
