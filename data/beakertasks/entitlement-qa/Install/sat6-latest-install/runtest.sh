@@ -36,7 +36,7 @@ rlJournalStart
         rlRun "setenforce 0" 0 "Set selinux"
         rlRun "sed -i -e 's/SELINUX=.*/SELINUX=permissive/g' /etc/sysconfig/selinux" 0 "Change selinux configure: permissive"
         rlRun "service iptables stop" 0 "Stop iptables service"
-        rlRun "subscription-manager register --username=qa@redhat.com --password=AC7YeKvJ7j8ZPu8 --auto-attach" 0 "Auto subscribe"
+        rlRun "subscription-manager register --username=qa@redhat.com --password=uBLybd5JSmkRHebA --auto-attach" 0 "Auto subscribe"
         rlRun "subscription-manager repos --disable "*""
         rlRun "subscription-manager repos --enable rhel-7-server-rpms --enable rhel-server-rhscl-7-rpms"
         rlRun "cat > /etc/yum.repos.d/sat6.repo <<EOF
@@ -54,7 +54,7 @@ gpgcheck=0
 
 [sat6-rhcommon]
 name=Satellite 6 RH Common Packages
-baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/compose/rhcommon/x86_64/os/
+baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/compose/sattools/x86_64/os/
 enabled=1
 gpgcheck=0
 
