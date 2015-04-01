@@ -37,7 +37,7 @@ rlJournalStart
             rlRun "setenforce 0" 0 "Set selinux"
             rlRun "sed -i -e 's/SELINUX=.*/SELINUX=permissive/g' /etc/sysconfig/selinux" 0 "Change selinux configure: permissive"
             rlRun "service iptables stop" 0 "Stop iptables service"
-            rlRun "subscription-manager register --username=qa@redhat.com --password=HWj8TE28Qi0eP2c --auto-attach" 0 "Auto subscribe"
+            rlRun "subscription-manager register --username=qa@redhat.com --password=uBLybd5JSmkRHebA --auto-attach" 0 "Auto subscribe"
             rlRun "cat > /etc/yum.repos.d/sam.repo <<EOF
 [sam]
 name=sam
