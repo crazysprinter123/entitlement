@@ -140,7 +140,7 @@ class VirtWhoKickstart(Command):
             if self.get_rhel_version(compose) == 5:
                 compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/tree-x86_64" % compose
             elif self.get_rhel_version(compose) == 6:
-                compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/%s/Server/x86_64/os/" % (compose, self.get_rhel_version(compose))
+                compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/Server/x86_64/os/" % (compose)
             elif self.get_rhel_version(compose) == 7:
                 compose_url = "http://download.englab.nay.redhat.com/pub/rhel/rel-eng/%s/compose/Server/x86_64/os/" % compose
             cmd = "sed -e 's#auto-rhel-compose-url#%s#g' %s > %s" % (compose_url, dir_sample_kickstart + "/" + sample_kickstart, kickstart_file)
