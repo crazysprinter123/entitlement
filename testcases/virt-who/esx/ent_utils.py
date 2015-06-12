@@ -22,7 +22,7 @@ class ent_utils:
 		else:
 			if "redhat.com" in targetmachine_ip:
 				# run in beaker
-				(ret, output) = utils().remote_exec_pexpect(targetmachine_ip, "root", "xxoo2014", cmd)
+				(ret, output) = utils().remote_exec_pexpect(targetmachine_ip, "root", "red2015", cmd)
 			else:
 				(ret, output) = utils().remote_exec_pexpect(targetmachine_ip, "root", "redhat", cmd)
 		if cmddesc != "":
@@ -1158,7 +1158,7 @@ class ent_utils:
 			params['username'] = "root"
 			if "redhat.com" in targetmachine_ip:
 				# run in beaker
-				params['password'] = "xxoo2014"
+				params['password'] = "red2015"
 			else:
 				params['password'] = "redhat"
 			params["guestname"] = guestname

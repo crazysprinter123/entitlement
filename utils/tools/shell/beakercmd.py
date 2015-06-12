@@ -64,11 +64,11 @@ class BeakerCMD(Command):
 
     def __deploy_sam(self, sam_server):
         cmd = "katello-configure --deployment=sam --user-pass=admin"
-        RemoteSH.remote_run(cmd, sam_server, "root", "xxoo2014", 1800)
+        RemoteSH.remote_run(cmd, sam_server, "root", "red2015", 1800)
 
     def __import_manifest(self, sam_server):
         cmd = "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/sam_install_manifest.zip"
-        RemoteSH.remote_run(cmd, sam_server, "root", "xxoo2014", 1800)
+        RemoteSH.remote_run(cmd, sam_server, "root", "red2015", 1800)
 
 if __name__ == "__main__":
     test = BeakerCMD()

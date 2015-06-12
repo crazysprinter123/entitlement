@@ -18,7 +18,7 @@ class RHSMBase(unittest.TestCase):
         if not self.check_ip(remoteIP):
             # only for beaker machines
             remoteIP = self.domain_to_ip(remoteIP)
-            password = "xxoo2014"
+            password = "red2015"
         user_hostname = "%s@%s" % (username, remoteIP)
         child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=60, maxread=2000, logfile=None)
         while True:
