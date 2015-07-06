@@ -5,9 +5,32 @@ from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
 from utils.exception.failexception import FailException
 
 class RHSMGuiBase(unittest.TestCase):
+
     # ========================================================
     #     0. LDTP GUI Common Functions
     # ========================================================
+
+    #used to get the text value at a label and returns the output as a string
+    #eg get the value of lblOrganizationValue
+    #input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
+    def get_label_txt(self, window, label):
+        logger.info("Retrieving label from %s" % label)
+        return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(label))
+
+    def get_text_from_txtbox(self, window, txtbox):
+        logger.info("Retrieving text from %s" % txtbox)
+        return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
+
+    def select_row(self, window, table, row): #row is 0 indexed
+        logger.info("Selecting row %d on table %s!" % (row, window))
+        ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
+        ldtp.wait()
+
+    def double_click_row(self, window, table, row_name):
+        logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
+        ldtp.doubleclickrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+        ldtp.wait()
+
     def restore_gui_environment(self):
         self.close_rhsm_gui()
         self.unregister()
@@ -74,7 +97,12 @@ class RHSMGuiBase(unittest.TestCase):
         return parsed_objects_list
 
     def check_window_exist(self, window):
+        logger.info('check_window_exist %s' %window)
         ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window))
+
+    def check_window_exist_fast(self, window):
+        logger.info('check_window_exist_fast %s' %window)
+        ldtp.guiexist(RHSMGuiLocator().get_locator(window))
 
     def close_window(self, window):
         ldtp.closewindow(RHSMGuiLocator().get_locator(window))
@@ -107,9 +135,153 @@ class RHSMGuiBase(unittest.TestCase):
     def verifycheck_checkbox(self, window, checkbox_name):
         return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
+    def get_table_row_index(self, window, table, row_name):
+        logger.info('Retrieving row index from window %s on table %s with row_name %s' % (window, table, row_name))
+        return ldtp.gettablerowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+
     # ========================================================
     #     1. LDTP GUI Keyword Functions
     # ========================================================
+
+    def check_hostype_and_isguest_gui_vs_cli(self):
+        self.double_click_row('system-facts-dialog','facts-view-table','virt')
+        virt_hostype_index = self.get_table_row_index('system-facts-dialog','facts-view-table','virt.host_type')
+        virt_is_guest_index = self.get_table_row_index('system-facts-dialog','facts-view-table','virt.is_guest')
+        virt_hostype_gui = self.get_table_cell('system-facts-dialog','facts-view-table', virt_hostype_index, 1)
+        virt_isguest_gui = self.get_table_cell('system-facts-dialog','facts-view-table', virt_is_guest_index, 1)
+
+        cmd = "subscription-manager facts --list | grep ^virt.host"
+        (ret, output) = Command().run(cmd)
+        real_output_host = output.split(':')[1].strip()
+
+        cmd = "subscription-manager facts --list | grep ^virt.is_guest"
+        (ret, output) = Command().run(cmd)
+        real_output_guest = output.split(':')[1].strip()
+
+        if real_output_host != virt_hostype_gui:
+            raise FailException("FAILED: host_name does not match!")
+        if real_output_guest != virt_isguest_gui:
+            raise FailException("FAILED: is_guest does not match!")
+        logger.info('SUCCESS: Retreived and matched virt.host and virt.is_guest!')
+
+    def open_subscription_manager_by_cmd_check_output(self):
+        cmd = "subscription-manager-gui &"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("It's successful to run subscription-manager-gui the second time.")
+            return output == 'subscription-manager-gui is already running\n'
+        else:
+            raise FailException("Test Failed - Failed to run subscription-manager-gui the second time")
+
+    def check_org_and_id_displayed_in_facts_match(self, username, password):
+        cmd = "subscription-manager orgs --user=%s --password=%s | grep Key" % (username, password)
+        (ret, output) = Command().run(cmd)
+        org_in_cml = output.split(":")[1].strip()
+        if ret == 0:
+            logger.info("SUCCESS: org in CML is %s" % org_in_cml)
+        else:
+            raise FailException("FAILED: Can't get org by CML.")
+
+        cmd2 = "subscription-manager identity | grep system"
+        (ret2, output2) = Command().run(cmd2)
+        id_in_cml = output2.split(":")[1].strip()
+        if ret == 0:
+            logger.info("SUCCESS: ID in CML is %s" % org_in_cml)
+        else:
+            raise FailException("FAILED: Can't get ID by CML.")
+
+        #check org
+        org_in_facts = "OrganizationValue"
+        if self.check_element_exist("system-facts-dialog", "lbl", "OrganizationValue"):
+            org_in_facts = self.get_label_txt("system-facts-dialog","label-org")
+            logger.info("SUCCESS: Got label of %s in system facts" % org_in_facts)
+        else: 
+            raise FailExcepction("FAILED: Can't get id from facts")
+        
+        #check id
+        id_in_facts = "lblSystemIdentityValue"
+        if self.check_element_exist("system-facts-dialog", "lbl", "SystemIdentityValue"):
+            id_in_facts = self.get_label_txt("system-facts-dialog","label-id")
+            logger.info("SUCCESS: Got label of %s in system facts" % id_in_facts)
+        else: raise FailException("FAILED: Can't get id from facts")
+        if org_in_cml in org_in_facts:
+            logger.info("SUCCESS: Org info matches!")
+        else: 
+            raise FailException("FAILED: Org info does not match!")
+        if id_in_cml == id_in_facts: 
+            logger.info("SUCCESS: ID info matches!")
+        else: 
+            raise FailException("FAILED: ID info does not match!")
+
+    #opens subscription manager and checks for error
+    def open_subcription_manager_and_check_for_error(self):
+        #uses a try and except to catch errors when opening the sm gui.  Can be impoved
+        try: 
+            self.open_subscription_manager()
+            logger.info("SUCCESS: Opened subcription-manager-invalid-proxy!")
+            self.close_rhsm_gui()
+        except: 
+            raise FailException("FAILED: Unable to open subscription manager with invalid-proxy-settings!")
+
+    def click_configure_proxy_button(self):
+        self.click_button("register-dialog", "configure-proxy-button")
+        self.check_window_exist("proxy-configuration-dialog")
+        logger.info("click_configure_proxy_button")
+
+    def check_HTTP_Proxy_checkbox(self):
+        self.check_checkbox("proxy-configuration-dialog", "proxy-checkbox")
+        self.check_window_exist("proxy-configuration-dialog")
+        logger.info("check_HTTP_Proxy_checkbox")
+
+    def uncheck_HTTP_Proxy_checkbox(self):
+        self.uncheck_checkbox("proxy-configuration-dialog", "proxy-checkbox")
+        self.check_window_exist("proxy-configuration-dialog")
+        logger.info("uncheck_HTTP_Proxy_checkbox")
+
+    def click_save_button(self):
+        self.click_button("proxy-configuration-dialog", "proxy-save-button")
+        self.check_window_closed("proxy-configuration-dialog")
+        logger.info("click_save_button")
+ 
+    def click_system_registration_cancel_button(self):
+        self.click_button("register-dialog", "dialog-cancle-button")
+        self.check_window_closed("register-dialog")
+        logger.info("click_system_registration_cancel_button")
+
+    def click_subscription_manager_close_button(self):
+        self.click_button("main-window", "quit-menu")
+        self.check_window_closed("quit-menu")
+        logger.info("click_subscription_manager_close_button")
+
+    def uncheck_proxy_in_subscription_manager(self):
+        self.open_subscription_manager()
+        self.click_register_button()
+        self.click_configure_proxy_button()
+        self.uncheck_HTTP_Proxy_checkbox()
+        self.click_save_button()
+
+    def move_ca_to_tmp(self):
+        cmd = "mkdir -p /root/tmp"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("SUCCESS: Made /root/tmp")
+        else:
+            raise FailException("FAILED: Unable to make /root/tmp")
+        cmd = "mv /etc/rhsm/ca/* /root/tmp"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("SUCCESS: Moved CA to /root/tmp")
+        else:
+            raise FailException("FAILED: Unable to move CA to /root/tmp")
+
+    def move_ca_back(self):
+        cmd = "mv /root/tmp/* /etc/rhsm/ca"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("SUCCESS: Moved CA back to /etc/rhsm/ca")
+        else:
+            raise FailException("FAILED: Unable to move CA back to /etc/rhsm/ca")
+
     def open_subscription_manager(self):
         logger.info("open_subscription_manager")
         if int(RHSMGuiLocator().get_os_serials()) == "5":
@@ -401,6 +573,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def get_my_subscriptions_table_my_subscriptions(self):
         for row in range(self.get_my_subscriptions_table_row_count()):
+            print self.get_table_cell("main-window", 'my-subscription-table', row , 0)
             return self.get_table_cell("main-window", 'my-subscription-table', row , 0)
 
     def check_content_in_all_subscription_table(self, content):
@@ -493,8 +666,8 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_combo_item(self, window, combobox, item_name):
         logger.info("check_combo_item")
-        ldtp.wait(10)
-        # ldtp.verifyshowlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
+        #do NOT remove.  This line is to update the item list, as item list in ldtp is quite buggy
+        ldtp.showlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox)) 
         return item_name in ldtp.getallitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
 
     def select_combo_item(self, window, combobox, item_name):
@@ -812,6 +985,7 @@ class RHSMGuiBase(unittest.TestCase):
     def check_consumer_cert_files(self, exist=True):
         cmd = "ls /etc/pki/consumer"
         (ret, output) = Command().run(cmd)
+        print output
         if exist:
             if ret == 0 and "cert.pem" in output and "key.pem" in output:
                 logger.info("It is successful to check certificate files in /etc/pki/consumer!")

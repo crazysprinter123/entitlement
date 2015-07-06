@@ -1,10 +1,39 @@
+##############################################################################
+## Test Description
+##############################################################################
+"""
+Setup:
+
+1.Prepare a registered machine.
+	
+Breakdown:
+
+Actions:
+
+1.List identity cert info for the machine.
+   # subscription-manager identity
+	
+Expected Results:
+
+1.The correct org name should display as follows.
+   Current identity is: e4defb29-ec53-47ab-95d4-afd7f0867280 
+   name: localhost.localdomain 
+   org name: Admin Owner 
+   org id: ff80808131d2b8e70131d2b9066a0006
+
+
+Notes: 
+Test case does not follow expected results as it is different from 
+current machine?  Maybe because my version is Linux 7?  Need to check later.
+"""
+##############################################################################
 from utils import *
 from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID143285_GUI_display_current_service_level(RHSMGuiBase):
+class tc_ID115128_display_org_name_with_identity_command_via_cli(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
@@ -15,13 +44,7 @@ class tc_ID143285_GUI_display_current_service_level(RHSMGuiBase):
                 password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
-                self.click_preferences_menu()
-                # get service-level by cmd line
-                if self.check_combo_item("system-preferences-dialog", "service-level-combobox", self.get_service_level()):
-                # if self.check_combo_item_selected("system-preferences-dialog", "service-level-combobox", self.get_service_level()):
-                    logger.info("It's successful to display current service level.")
-                else:
-                    raise FailException("Test Faild - Failed to display current service level!")
+                self.get_org_through_cli()
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))

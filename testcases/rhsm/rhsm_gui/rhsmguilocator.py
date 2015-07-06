@@ -7,6 +7,21 @@ class RHSMGuiLocator(object):
     #       RHSM GUI test elements
     # ========================================================
     element_locators = {
+    
+    ######## Ben's Added Elements (to be sorted later) ########
+    'toggle-desktop':                        'tbtnDesktop',
+    'proxy-save-button':                     'btnSaveButton',
+    'label-org':                             'lblOrganizationValue',
+    'label-id':                              'lblSystemIdentityValue',
+    'nosubscriptions-in-filter-label':       'lblNosubscriptionsmatchcurrentfilters',
+    'filter-subscriptions-text':             'txtTextinSubscription',
+    'proxy-close-button-7':                  'btnCancelButton',
+    'attach-subscription':                   'btnAttach',
+    'table-places':                          'tblPlaces',
+    'table-files':                           'tblFiles',
+    'text-product':                          'txtProductText',
+    'text-service-level':                    'txtAllAvailableSupportLevelAndTypeText',
+
     ######## Window Elements ########
     'main-window-5':                         'Subscription Manager',
     'main-window':                           'frmSubscriptionManager',
