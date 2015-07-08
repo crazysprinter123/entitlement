@@ -21,20 +21,12 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("Retrieving text from %s" % txtbox)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
 
-    def select_row_by_name(self, window, table, row_name):
-        ldtp.wait()
-        logger.info("Selecting table %s at row_name %s" % (table, row_name))
-        ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
-        ldtp.wait()
-
     def select_row(self, window, table, row): #row is 0 indexed
-        ldtp.wait()
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
         ldtp.wait()
 
     def double_click_row(self, window, table, row_name):
-        ldtp.wait()
         logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
         ldtp.doubleclickrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
         ldtp.wait()
@@ -131,7 +123,6 @@ class RHSMGuiBase(unittest.TestCase):
         ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
 
     def check_checkbox(self, window, checkbox_name):
-        logger.info("checking checkbox %s in window %s" % (checkbox_name, window))
         ldtp.check(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def uncheck_checkbox(self, window, checkbox_name):
@@ -147,17 +138,6 @@ class RHSMGuiBase(unittest.TestCase):
     # ========================================================
     #     1. LDTP GUI Keyword Functions
     # ========================================================
-
-    def restore_firstboot_environment(self):
-        filename = "/etc/sysconfig/firstboot"
-        text = open(filename).read()
-        open(filename, "w").write(text.replace("NO","YES"))
-        logger.info("SUCCESS: firstboot restored in /etc/sysconfig/firstboot!")
-
-    def click_firstboot_fwd_button(self):
-        self.click_button('firstboot-main-window', 'firstboot-fwd-button')
-        logger.info("SUCCESS: clicked firstboot forward button!")
-        ldtp.wait()
 
     def check_hostype_and_isguest_gui_vs_cli(self):
         self.double_click_row('system-facts-dialog','facts-view-table','virt')
@@ -194,9 +174,9 @@ class RHSMGuiBase(unittest.TestCase):
         (ret, output) = Command().run(cmd)
         org_in_cml = output.split(":")[1].strip()
         if ret == 0:
-            logger.info("SUCCESS: org in CML is %s!" % org_in_cml)
+            logger.info("SUCCESS: org in CML is %s" % org_in_cml)
         else:
-            raise FailException("FAILED: Can't get org by CML!")
+            raise FailException("FAILED: Can't get org by CML.")
 
         cmd2 = "subscription-manager identity | grep system"
         (ret2, output2) = Command().run(cmd2)
@@ -204,7 +184,7 @@ class RHSMGuiBase(unittest.TestCase):
         if ret == 0:
             logger.info("SUCCESS: ID in CML is %s" % org_in_cml)
         else:
-            raise FailException("FAILED: Can't get ID by CML!")
+            raise FailException("FAILED: Can't get ID by CML.")
 
         #check org
         org_in_facts = "OrganizationValue"
@@ -212,7 +192,7 @@ class RHSMGuiBase(unittest.TestCase):
             org_in_facts = self.get_label_txt("system-facts-dialog","label-org")
             logger.info("SUCCESS: Got label of %s in system facts" % org_in_facts)
         else: 
-            raise FailExpection("FAILED: Can't get id from facts!")
+            raise FailExpection("FAILED: Can't get id from facts")
         
         #check id
         id_in_facts = "lblSystemIdentityValue"
@@ -260,7 +240,7 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("click_save_button")
  
     def click_system_registration_cancel_button(self):
-        self.click_button("register-dialog", "dialog-cancel-button")
+        self.click_button("register-dialog", "dialog-cancle-button")
         self.check_window_closed("register-dialog")
         logger.info("click_system_registration_cancel_button")
 
@@ -308,7 +288,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_firstboot(self):
         logger.info("open_firstboot")
-        #self.set_os_release() 
+        self.set_os_release()
         ldtp.launchapp("firstboot")
         self.check_window_exist('firstboot-main-window')
 
@@ -326,7 +306,7 @@ class RHSMGuiBase(unittest.TestCase):
         self.input_password(password)
         self.click_dialog_register_button()
         self.click_dialog_next_button()
-        self.click_dialog_cancel_button()
+        self.click_dialog_cancle_button()
 
     def register_and_autosubscribe_in_gui(self, username, password):
         self.click_register_button()
@@ -446,13 +426,13 @@ class RHSMGuiBase(unittest.TestCase):
         self.click_button("register-dialog", "dialog-register-button")
         self.check_window_closed("register-dialog")
 
-    def click_dialog_cancel_button(self):
-        logger.info("click_dialog_cancel_button")
+    def click_dialog_cancle_button(self):
+        logger.info("click_dialog_cancle_button")
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-        self.click_button("register-dialog", "dialog-cancel-button")
+        self.click_button("register-dialog", "dialog-cancle-button")
         self.check_window_closed("register-dialog")
 #         else:
-#             self.click_button("subscribe-dialog", 'dialog-cancee-button')
+#             self.click_button("subscribe-dialog", 'dialog-cancle-button')
 #             self.check_window_closed("subscribe-dialog")
 
     def click_proxy_close_button(self):
@@ -709,7 +689,6 @@ class RHSMGuiBase(unittest.TestCase):
             ldtp.wait(5)
 
     def input_text(self, window, text, text_value):
-        logger.info("Inputting text %s" % text_value)
         ldtp.settextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(text), text_value)
 
     def verify_text(self, window, text, text_value):
@@ -895,7 +874,7 @@ class RHSMGuiBase(unittest.TestCase):
     # ## rhn_classic register and unregister function
     def register_rhn_classic(self, username, password):
         # open rhn_register gui
-        #self.set_os_release()
+        self.set_os_release()
         ldtp.launchapp("rhn_register")
         self.check_window_exist("classic-main-window")
         if self.check_object_status("classic-main-window", "classic-software-update-label", 'ENABLED'):

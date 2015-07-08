@@ -3,52 +3,48 @@
 ##############################################################################
 """
 Setup:
-	
+    
 Breakdown:
 
 Actions:
+1. If  "/etc/sysconfig/firstboot" file exists edit "RUN_FIRSTBOOT=YES"
+else  "# firstboot"  in terminal
 
-1.remove the CA file
-
-#mv /etc/rhsm/ca/* /root/tmp
-
-2.launch rhsm gui
-
-#subscription-manager-gui
-	
 Expected Results:
-
-1.After step2 the rhsm gui should be launched successfully.
+1. Firstboot should have subscription_manager register screens
 
 Notes:
+Firstboot test specifics are included in Documentation-Ben.
+Please read the note there on firstboot tests if you encounter any errors.
 Completed.
 """
+
 ##############################################################################
 from utils import *
-from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
+from testcases.rhsm.rhsmguibase import RHSMGuiBase
+from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID272161_rhsm_gui_should_launch_although_CA_cert_invalid(RHSMGuiBase):
+class tc_ID324773_GUI_firstboot_appears_in_gui(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                self.move_ca_to_tmp()
-                logger.info("SUCCESS: Moved CA to tmp")
-                self.open_subscription_manager()
-                logger.info("SUCCESS: Opened sm-gui without crashing!")
+                self.restore_firstboot_environment() #as a precaution for this test
+                self.open_firstboot()
+                self.check_window_exist('firstboot-main-window')
+                self.close_firstboot()
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
-            self.capture_image(case_name)   
-            #need to move CA back or else uregister will fail for any following tests!
-            self.move_ca_back()
+            self.capture_image(case_name)
+            #need to restore firstboot environment
+            self.restore_firstboot_environment()
             self.restore_gui_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

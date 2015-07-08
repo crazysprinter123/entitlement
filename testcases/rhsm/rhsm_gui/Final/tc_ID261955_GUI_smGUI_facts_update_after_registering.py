@@ -3,31 +3,28 @@
 ##############################################################################
 """
 Setup:
+subscription-manager has been installed, and be in a completely unregistered state
 
-1. The system is registered and autosubscribed.
-    
 Breakdown:
+
 Actions:
-
-1. Open subscription-manager-gui.
-
-2. Click "System Preferences" button in toolbar.
-
-3. Check the drop-down list of release version.
+1. start subscription-manager-gui
+2. register through the gui
+3. Go to System --> View System Facts --> virt
     
 Expected Results:
+3. the virt info in gui should correct and consistent with it in CLI
 
-1. After step1, subscription manager GUI is openned.
-
-2. After step2, "System Preferences" dialog should display.
-
-3. After step3, release list should display.
+    In the CLI during the same time:
+    # subscription-manager facts --list | grep ^virt
+    virt.host_type: kvm
+    virt.is_guest: True
+    virt.uuid: 131e448d-c000-f6bb-e2a9-8bb549e21ab4
 
 Notes:
-Completed
+Completed.
 """
-
-########################################################
+##############################################################################
 
 from utils import *
 from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
@@ -35,7 +32,7 @@ from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID155109_GUI_list_avaialble_release(RHSMGuiBase):
+class tc_ID261955_GUI_smGUI_facts_update_after_registering(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
@@ -46,15 +43,11 @@ class tc_ID155109_GUI_list_avaialble_release(RHSMGuiBase):
                 password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
-                self.click_preferences_menu()
-                for item in self.get_available_release():
-                    if self.check_combo_item("system-preferences-dialog", "release-version-combobox", item):
-                        logger.info("SUCCESS: Checked release %s exist." % item)
-                    else:
-                        raise FailException("FAILED: Unable to check release %s exist." % item)
+                self.click_view_system_facts_menu()
+                self.check_hostype_and_isguest_gui_vs_cli()
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)

@@ -3,9 +3,8 @@
 ##############################################################################
 """
 Setup:
-
 System has been registered.
-	
+
 Breakdown:
 
 Actions:
@@ -17,7 +16,7 @@ Actions:
 4. Alter the filters
 5. Close the "Filters"
 6. Reopen "Filters"
-	
+
 Expected Results:
 
 1. Display the subscription-manager GUI
@@ -31,13 +30,14 @@ Notes:
 Completed
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID272161_filter_options_should_be_saved(RHSMGuiBase):
+class tc_ID272161_GUI_filter_options_should_be_saved(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
@@ -59,14 +59,16 @@ class tc_ID272161_filter_options_should_be_saved(RHSMGuiBase):
                 self.click_filter_close_button()
                 self.click_filters_button()
 
+                #check if filter settings saved!
                 if (not(self.verifycheck_checkbox("filter-options-window", "match-installed-checkbox") and 
-                   not(self.verifycheck_checkbox("filter-options-window", "match-system-checkbox")) and
-                   not(self.verifycheck_checkbox("filter-options-window", "do-not-overlap-checkbox"))) and
-                   self.get_text_from_txtbox("filter-options-window","filter-subscriptions-text") == 'This is testy-test-mactest'):
-                  raise FailException("FAILED: Filter settings not saved!")
-
+                    not(self.verifycheck_checkbox("filter-options-window", "match-system-checkbox")) and
+                    not(self.verifycheck_checkbox("filter-options-window", "do-not-overlap-checkbox"))) and
+                    self.get_text_from_txtbox("filter-options-window","filter-subscriptions-text") == 'This is testy-test-mactest'):
+                    raise FailException("FAILED: Filter settings not saved!")
+                logger.info("SUCCESS: Filter settings saved!")
+                self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED: - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)

@@ -21,8 +21,6 @@ class RHSMGuiLocator(object):
     'table-files':                           'tblFiles',
     'text-product':                          'txtProductText',
     'text-service-level':                    'txtAllAvailableSupportLevelAndTypeText',
-    'firstboot-organization-entry-text':     'txtorganizationentry',
-    'firstboot-activation-key-text':         'txtactivationkeyentry',
 
     ######## Window Elements ########
     'main-window-5':                         'Subscription Manager',
@@ -78,8 +76,8 @@ class RHSMGuiLocator(object):
     # button in register dialog
     'dialog-register-button-5':              'register_button',
     'dialog-register-button':                'btnregisterbutton',
-    'dialog-cancel-button-5':                'cancel_button',
-    'dialog-cancel-button':                  'btncancelbutton',
+    'dialog-cancle-button-5':                'cancel_button',
+    'dialog-cancle-button':                'btncancelbutton',
     # button in subscribe dialog
     'dialog-subscribe-button-5':             'btnSubscribe',
     'dialog-subscribe-button':               'btnSubscribe',
@@ -197,7 +195,7 @@ class RHSMGuiLocator(object):
     'do-not-overlap-checkbox':               'chkDoNotOverlap',
     # ##firstboot checkbox for RHEL6
     'firstboot-manual-checkbox':             'chkautobind',
-    'firstboot-activationkey-checkbox':      'chkIwilluseanActivationKey',
+    'firstboot_activationkey-checkbox':      'chkIwilluseanActivationKey',
 
     ######## Label Element ########
     'import-cert-success-label':                 'lblCertificateimportwassuccessful',

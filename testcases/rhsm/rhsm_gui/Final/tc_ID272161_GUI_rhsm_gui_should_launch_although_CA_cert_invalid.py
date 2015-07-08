@@ -4,48 +4,47 @@
 """
 Setup:
 
-1. subscription-manager-gui is already running and it either minimized or in the background.
-    
 Breakdown:
 
 Actions:
-
-1. Open another terminal and run subscription-manager-gui on the terminal.
-    
+1.remove the CA file
+#mv /etc/rhsm/ca/* /root/tmp
+2.launch rhsm gui
+#subscription-manager-gui
+	
 Expected Results:
-
-1. After step 1, the subscription-manager-gui window is brought to foreground, and the following message is displayed:
-
-# subscription-manager-gui
-subscription-manager-gui is already running
+1.After step2 the rhsm gui should be launched successfully.
 
 Notes:
 Completed.
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID261838_GUI_smGUI_on_terminal_when_running_smGUI(RHSMGuiBase):
+class tc_ID272161_GUI_rhsm_gui_should_launch_although_CA_cert_invalid(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
+                self.move_ca_to_tmp()
+                logger.info("SUCCESS: Moved CA to tmp")
                 self.open_subscription_manager()
                 logger.info("SUCCESS: Opened sm-gui without crashing!")
-                if not(self.open_subscription_manager_by_cmd_check_output()):
-                    FailException("FAILED: Error when opening subscription manager twice or error message wrong!")
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
-            self.capture_image(case_name)
+            self.capture_image(case_name)   
+            #need to move CA back or else uregister will fail for any following tests!
+            self.move_ca_back()
             self.restore_gui_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
